@@ -1,0 +1,44 @@
+df2k:
+  jpeg:
+    hr:
+      train: '../datasets/DF2K/jpeg/train_HR'
+      valid: '../datasets/DF2K/jpeg/valid_HR'
+    lr:
+      train: '../datasets/DF2K/jpeg/train_LR'
+      valid: '../datasets/DF2K/jpeg/valid_LR'
+  gaussian:
+    hr:
+      train: '../datasets/DF2K/gaussian/train_HR'
+      valid: '../datasets/DF2K/gaussian/valid_HR'
+    lr:
+      train: '../datasets/DF2K/gaussian/train_LR'
+      valid: '../datasets/DF2K/gaussian/valid_LR'
+  clean:
+    hr:
+      train: '../datasets/DF2K/clean/train_HR'
+      valid: '../datasets/DF2K/clean/valid_HR'
+    lr:
+      train: '../datasets/DF2K/clean/train_LR'
+      valid: '../datasets/DF2K/clean/valid_LR'
+aim2019:
+  sdsr:
+    source: '/media/4T/Dizzy/AIM/AIM_datasets/TrainingSource'
+    target: '/media/4T/Dizzy/AIM/AIM_datasets/TrainingSource'
+    valid:
+  tdsr:
+    source: '/media/4T/Dizzy/AIM/AIM_datasets/TrainingSource'
+    target: '/media/4T/Dizzy/AIM/AIM_datasets/DIV2K_train_HR'
+    valid_hr: '/media/4T/Dizzy/AIM/AIM_datasets/DIV2K_val100/DIV2K_valid_HR'
+    valid_lr: '/media/4T/Dizzy/AIM/AIM_datasets/ValidationSource'
+dped:
+  clean:
+    hr:
+      train: '../datasets/DPED/train/iphone'
+      valid: '../datasets/DPED/test/iphone'
+    lr:
+      train:
+      valid:
+datasets:
+  df2k: '../datasets/DF2K' 
+  aim2019: '/media/4T/Dizzy/AIM/AIM_datasets'
+  dped: '../datasets/DPED'
