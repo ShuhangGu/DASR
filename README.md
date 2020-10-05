@@ -148,8 +148,8 @@ super-resolution toolkit.
 #### Training
 The SRN model can be trained with:
 ```
-cd DASR
-python codes/train.py -opt codes/options/train/train_DASR.json
+cd DASR/SRN
+python train.py -opt options/train/train_DASR.json
 ```
 Please specify the configurations in `train_DASR.json` file.
 
