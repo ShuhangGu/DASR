@@ -72,7 +72,7 @@ We add some extra options including `LPIPS`,`Forward_chop`, etc.
 Please specify the pre-trained model and data path in
 `test_sr.json` correctly.
 ```
-cd DASR/SRN/codes
+cd DASR/SRN
 python test.py -opt options/test/test_sr.json
 ```
 
