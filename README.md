@@ -72,7 +72,7 @@ We add some extra options including `LPIPS`,`Forward_chop`, etc.
 Please specify the pre-trained model and data path in
 `test_sr.json` correctly.
 ```
-cd DASR/SRN
+cd DASR/codes/SRN
 python test.py -opt options/test/test_sr.json
 ```
 
@@ -148,7 +148,7 @@ super-resolution toolkit.
 #### Training
 The SRN model can be trained with:
 ```
-cd DASR/SRN
+cd DASR/codes/SRN
 python train.py -opt options/train/train_DASR.json
 ```
 Please specify the configurations in `train_DASR.json` file.
