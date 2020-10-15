@@ -14,7 +14,7 @@ These days, unsupervised super-resolution (SR) has been soaring due to its pract
 - tensorboardX
 
 # Usage
-### DASR codes
+### Hierarchy of DASR codes
 ```
 DASR:
 |
@@ -54,7 +54,7 @@ python Auto_Reproduce.py --dataset aim2019/realsr  \
 ```
 Auto-reproducing process will take about 48 hours on Nvidia GTX 1080.
 
-### Pretrained models
+### Pretrained model
 We provide pretrained models for AIM2019/ RealSR and CameraSR datasets.
 
 
@@ -62,7 +62,7 @@ We provide pretrained models for AIM2019/ RealSR and CameraSR datasets.
 |---|:---:|:---:|
 |AIM|[DeResnet](https://drive.google.com/file/d/1egzDbeL3UXeDwrjIapIL2HMtHEDImLSr/view?usp=sharing)|[ESRGAN](https://drive.google.com/file/d/1vOcFD1nfm9AVcU5xzFCnphMydCBPtYfZ/view?usp=sharing)|
 |RealSR|[DeResnet](https://drive.google.com/file/d/1tbAgx0r50Y8aUrxbfcqCtT1sfSor8Jff/view?usp=sharing)|[ESRGAN](https://drive.google.com/file/d/1N9bGLoHrOl3WnWG5eQBWFdvvbLLP5zQM/view?usp=sharing)|
-|CameraSR|[DeResnet]()|[ESRGAN](https://drive.google.com/file/d/1gk5YsbY_976ZU69eVq-bVkMbM2-LE5A8/view?usp=sharing)|
+|CameraSR|[DeResnet](https://drive.google.com/file/d/1IqcKqOJ2ZZrCbGV2CJbbX2QR86TvJ2dB/view?usp=sharing)|[ESRGAN](https://drive.google.com/file/d/1gk5YsbY_976ZU69eVq-bVkMbM2-LE5A8/view?usp=sharing)|
 
 
 ### Testing 
@@ -72,7 +72,7 @@ We add some extra options including `LPIPS`,`Forward_chop`, etc.
 Please specify the pre-trained model and data path in
 `test_sr.json` correctly.
 ```
-cd DASR/codes/SRN
+cd DASR/SRN/codes
 python test.py -opt options/test/test_sr.json
 ```
 
@@ -148,8 +148,8 @@ super-resolution toolkit.
 #### Training
 The SRN model can be trained with:
 ```
-cd DASR/codes/SRN
-python train.py -opt options/train/train_DASR.json
+cd DASR
+python codes/train.py -opt codes/options/train/train_DASR.json
 ```
 Please specify the configurations in `train_DASR.json` file.
 
