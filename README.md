@@ -72,7 +72,7 @@ We add some extra options including `LPIPS`,`Forward_chop`, etc.
 Please specify the pre-trained model and data path in
 `test_sr.json` correctly.
 ```
-cd DASR/SRN/codes
+cd DASR/codes/SRN
 python test.py -opt options/test/test_sr.json
 ```
 
@@ -85,6 +85,7 @@ FSSR ([github](https://github.com/ManuelFritsche/real-world-sr/tree/master/dsgan
 #### Training
 The DSN model can be trained with:
 ```
+cd DASR/codes/DSN
 python train.py --dataset aim2019 --artifacts tdsr \
                 --generator DeResnet --discriminator FSD \
                 --norm_layer Instance \
