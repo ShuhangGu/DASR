@@ -195,13 +195,7 @@ class DASR_FS_ESRGAN_patchGAN_Mix(BaseModel):
         self.real_HR_LL_source, _ = b_split(self.real_LL, self.mask)
         self.real_HR_Hf_source, self.real_HR_Hf_target = b_split(self.real_Hc, self.mask)
 
-        # from PIL import Image
-        # import numpy as np
-        # c = Image.fromarray(np.uint8(self.var_L[6].clamp(0,1).detach().cpu().numpy().transpose(1, 2, 0)*255))
-        # d = Image.fromarray(np.uint8(self.fake_H[6].clamp(0,1).detach().cpu().numpy().transpose(1, 2, 0)*255))
-        # c.show()
-        # d.show()
-        # print()
+
         if step % self.G_update_inter == 0:
             l_g_total = 0
             if self.cri_pix:  # pixel loss
@@ -295,21 +289,6 @@ class DASR_FS_ESRGAN_patchGAN_Mix(BaseModel):
                 self.optimizer_D_source.zero_grad()
                 l_d_source_total.backward()
                 self.optimizer_D_source.step()
-
-
-            # if self.opt['train']['gan_type'] == 'wgan-gp':
-            #     batch_size = self.real_HR_Hf_unsup.size(0)
-            #     if self.random_pt.size(0) != batch_size:
-            #         self.random_pt.resize_(batch_size, 1, 1, 1)
-            #     self.random_pt.uniform_()  # Draw random interpolation points
-            #     interp = self.random_pt * self.fake_SR_unsup.detach() + (1 - self.random_pt) * self.real_HR_unsup
-            #     interp.requires_grad = True
-            #     _, interp_hf = self.fs(interp)
-            #     interp_crit = self.netD(interp_hf)
-            #     l_d_gp = self.l_gp_w * self.cri_gp(interp, interp_crit)
-            #     l_d_total += l_d_gp
-
-
 
         # set log
         if step % self.G_update_inter == 0:

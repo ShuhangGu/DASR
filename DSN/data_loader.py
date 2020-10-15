@@ -181,8 +181,6 @@ class Val_Deresnet_Dataset(Dataset):
             return resized_image, cropped_image, resized_image
         else:
             lr_image = Image.open(self.lr_files[index])
-            # w, h = lr_image.size
-            # cs = utils.calculate_valid_crop_size(min(w, h), self.upscale_factor)
 
             cropped_image = TF.to_tensor(T.RandomCrop(cs // self.upscale_factor)(lr_image))
             lr_image = TF.to_tensor(T.CenterCrop(cs // self.upscale_factor)(lr_image))

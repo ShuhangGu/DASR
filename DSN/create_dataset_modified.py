@@ -133,9 +133,6 @@ with torch.no_grad():
         input_img = Image.open(file)
         input_img = TF.to_tensor(input_img)
 
-        # # Save input_img as HR image for TDSR
-        # path = os.path.join(tdsr_hr_dir, os.path.basename(file))
-        # TF.to_pil_image(input_img).save(path, 'PNG')
         # Apply model to input_img
         if torch.cuda.is_available():
             input_img = input_img.unsqueeze(0).cuda()
@@ -143,12 +140,6 @@ with torch.no_grad():
 
         D_out = model_d(fake_img).cpu().detach().numpy()
         ddm = domain_distance_map_handler(fake_img, D_out, convnet, opt.filter)
-        # realorfake_shape = (input_noisy_img.shape[0], 1,
-        #                     input_noisy_img.shape[2], input_noisy_img.shape[3])
-        # realorfake_shape = torch.zeros(realorfake_shape)
-        # currentLayer_h, currentLayer_w = receptive_cal(realorfake_shape.shape[2], convnet), \
-        #                                  receptive_cal(realorfake_shape.shape[3], convnet)
-        # realorfake = getWeights(D_out, realorfake_shape, currentLayer_h, currentLayer_w)
         # Save input_noisy_img as HR image for TDSR
         fake_img = fake_img.squeeze(0).cpu()
         path = os.path.join(tdsr_lr_img_dir, os.path.basename(file))

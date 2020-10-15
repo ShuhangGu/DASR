@@ -285,13 +285,6 @@ for epoch in range(start_epoch, opt.num_epochs + 1):
 
             # validate on each image in the val dataset
             for index, (hr_img, bicubic_img, disc_img, target_img) in enumerate(val_bar):
-                # from PIL import Image
-                # hr = Image.fromarray(np.uint8(np.transpose(hr_img[0].detach().cpu().numpy()*255, (1,2,0))))
-                # unpairLR = Image.fromarray(np.uint8(np.transpose(disc_img[0].detach().cpu().numpy()*255, (1,2,0))))
-                # real_lr = Image.fromarray(np.uint8(np.transpose(target_img[0].detach().cpu().numpy()*255, (1,2,0))))
-                # hr.show()
-                # unpairLR.show()
-                # real_lr.show()
                 if opt.generator == 'DSGAN':
                     input_img = bicubic_img
                 elif opt.generator == 'DeResnet':
