@@ -1,9 +1,17 @@
 aim2019:
   tdsr:
     source: '/media/4T/Dizzy/AIM/AIM_datasets/TrainingSource'
-    target: '/media/4T/Dizzy/AIM/AIM_datasets/DIV2K_train_HR'
+    target: '/media/4T/Dizzy/AIM/AIM_datasets/DIV2K_val100/DIV2K_valid_HR'
     valid_hr: '/media/4T/Dizzy/AIM/AIM_datasets/DIV2K_val100/DIV2K_valid_HR'
     valid_lr: '/media/4T/Dizzy/AIM/AIM_datasets/ValidationSource'
+
+
+ntire2020:
+  tdsr:
+    source: '/media/4T/Dizzy/SR_classical_DataSet/NTIRE2020/RealWorld/ImgProTrack/Corrupted-tr-x'
+    target: '/media/4T/Dizzy/SR_classical_DataSet/NTIRE2020/RealWorld/ImgProTrack/Corrupted-tr-y'
+    valid_hr: '/media/4T/Dizzy/AIM/AIM_datasets/DIV2K_val100/DIV2K_valid_HR'
+    valid_lr: '/media/4T/Dizzy/SR_classical_DataSet/NTIRE2020/RealWorld/ImgProTrack/Corrupted-tr-y'
 
 realsr:
   tddiv2k:

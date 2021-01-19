@@ -87,6 +87,14 @@ if opt.dataset == 'aim2019':
                                 lr_dir=PATHS['aim2019'][opt.artifacts]['valid_lr'], **vars(opt))
     val_loader = DataLoader(dataset=val_set, num_workers=1, batch_size=1, shuffle=False)
 
+elif opt.dataset == 'ntire2020':
+    train_set = loader.Train_Deresnet_Dataset(PATHS['aim2019'][opt.artifacts]['source'], PATHS['aim2019'][opt.artifacts]['target'],
+                                    cropped=True, **vars(opt))
+    train_loader = DataLoader(dataset=train_set, num_workers=opt.num_workers, batch_size=opt.batch_size, shuffle=True)
+    val_set = loader.Val_Deresnet_Dataset(PATHS['aim2019'][opt.artifacts]['valid_hr'],
+                                lr_dir=PATHS['aim2019'][opt.artifacts]['valid_lr'], **vars(opt))
+    val_loader = DataLoader(dataset=val_set, num_workers=1, batch_size=1, shuffle=False)
+
 elif opt.dataset == 'realsr':
     train_set = loader.Train_Deresnet_Dataset(PATHS['realsr'][opt.artifacts]['source'], PATHS['realsr'][opt.artifacts]['target'],
                                     cropped=True, **vars(opt))

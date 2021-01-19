@@ -81,6 +81,8 @@ if not os.path.exists(tdsr_lr_img_dir):
     os.makedirs(tdsr_lr_img_dir)
 if not os.path.exists(tdsr_lr_ddm_s_dir):
     os.makedirs(tdsr_lr_ddm_s_dir)
+if not os.path.exists(tdsr_lr_ddm_t_dir):
+    os.makedirs(tdsr_lr_ddm_t_dir)
 
 # prepare neural networks
 if opt.generator == 'DSGAN':
