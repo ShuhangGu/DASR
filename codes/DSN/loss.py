@@ -4,7 +4,7 @@ from torch import nn
 from torchvision.models.vgg import vgg16, vgg19
 from model import FilterLow
 import sys
-sys.path.insert(0, '../')
+sys.path.insert(0, './')
 import PerceptualSimilarity.models.util as ps
 from pytorch_wavelets import DWTForward
 
