@@ -2,7 +2,7 @@ import random
 import torch
 import torch.nn as nn
 import sys
-
+sys.path.insert(0, '../../../')
 from PerceptualSimilarity.models import util as ps
 # Define GAN loss: [vanilla | lsgan | wgan-gp]
 class GANLoss(nn.Module):
