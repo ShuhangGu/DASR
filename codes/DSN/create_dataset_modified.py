@@ -54,6 +54,11 @@ if opt.dataset == 'aim2019':
     input_target_dir = PATHS['aim2019']['tdsr']['target']
     source_files = [os.path.join(input_source_dir, x) for x in os.listdir(input_source_dir) if utils.is_image_file(x)]
     target_files = [os.path.join(input_target_dir, x) for x in os.listdir(input_target_dir) if utils.is_image_file(x)]
+elif opt.dataset == 'ntire2020':
+    input_source_dir = PATHS['ntire2020']['tdsr']['source']
+    input_target_dir = PATHS['ntire2020']['tdsr']['target']
+    source_files = [os.path.join(input_source_dir, x) for x in os.listdir(input_source_dir) if utils.is_image_file(x)]
+    target_files = [os.path.join(input_target_dir, x) for x in os.listdir(input_target_dir) if utils.is_image_file(x)]
 elif opt.dataset == 'realsr_tddiv2k':
     input_source_dir = PATHS['realsr']['tddiv2k']['source']
     input_target_dir = PATHS['realsr']['tddiv2k']['target']
