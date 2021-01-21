@@ -1,6 +1,6 @@
 import torch.backends.cudnn as cudnn
 cudnn.benchmark=False
-
+sys.path.insert(0, './')
 import numpy as np
 import time
 import os
