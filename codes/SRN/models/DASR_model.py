@@ -328,14 +328,14 @@ class DASR_FS_ESRGAN_patchGAN_Mix(BaseModel):
                 self.log_dict['D_fake_source_H'] = torch.mean(pred_d_source_fake.detach()).item()
 
 
-    def test(self):
+    def test(self, tsamples=False):
         self.netG.eval()
         with torch.no_grad():
             if self.chop:
                 self.fake_H = forward_chop(self.var_L, self.scale, self.netG, min_size=320000)
             else:
                 self.fake_H = self.netG(self.var_L)
-            if self.val_lpips:
+            if not tsamples and self.val_lpips:
                 fake_H, real_H = util.tensor2img(self.fake_H), util.tensor2img(self.var_H)
                 fake_H, real_H = fake_H[:, :, [2, 1, 0]], real_H[:, :, [2, 1, 0]]
                 fake_H, real_H = util_LPIPS.im2tensor(fake_H), util_LPIPS.im2tensor(real_H)
@@ -345,13 +345,16 @@ class DASR_FS_ESRGAN_patchGAN_Mix(BaseModel):
     def get_current_log(self):
         return self.log_dict
 
-    def get_current_visuals(self, need_HR=True):
+    def get_current_visuals(self, need_HR=True, tsamples=False):
         out_dict = OrderedDict()
         out_dict['LR'] = self.var_L.detach()[0].float().cpu()
-        out_dict['SR'] = self.fake_H.detach()[0].float().cpu()
-        if self.val_lpips:
+        if not tsamples:
+            out_dict['SR'] = self.fake_H.detach()[0].float().cpu()
+        else:
+            out_dict['SR'] = self.fake_H.detach().float().cpu()
+        if not tsamples and self.val_lpips:
             out_dict['LPIPS'] = self.LPIPS.detach().float().cpu()
-        if self.needHR:
+        if not tsamples and self.needHR:
             out_dict['HR'] = self.var_H.detach()[0].float().cpu()
         return out_dict
 

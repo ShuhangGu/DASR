@@ -7,9 +7,10 @@ import random
 import numpy as np
 from collections import OrderedDict
 import logging
-
+from PIL import Image
 import torch
-
+import torchvision
+from torchvision import transforms
 import options.options as option
 from utils import util
 from data import create_dataloader, create_dataset
@@ -118,6 +119,43 @@ def main():
                     if opt['use_tb_logger'] and 'debug' not in opt['name']:
                         tb_logger.add_scalar(k, v, current_step)
                 logger.info(message)
+
+            # training samples
+            if current_step % opt['train']['save_tsamples'] == 0:
+                fake_LRs = os.listdir(opt['datasets']['train']['dataroot_fake_LR'])
+                real_LRs = os.listdir(opt['datasets']['train']['dataroot_real_LR'])
+
+                for i in range(5):
+                    fake_LR_path = os.path.join(opt['datasets']['train']['dataroot_fake_LR'], fake_LRs[i])
+                    real_LR_path = os.path.join(opt['datasets']['train']['dataroot_real_LR'], real_LRs[i])
+                    fake_LR = np.array(Image.open(fake_LR_path))
+                    real_LR = np.array(Image.open(real_LR_path))
+
+                    h, w, _ = fake_LR.shape
+                    fake_LR = fake_LR[h // 2 - 64:h // 2 + 64, w//2 - 64:w//2+64, :]
+
+                    h, w, _ = real_LR.shape
+                    real_LR = real_LR[h // 2 - 64:h // 2 + 64, w//2 - 64:w//2+64, :]
+
+
+                    fake_LR = torch.from_numpy(np.ascontiguousarray(np.transpose(fake_LR, (2, 0, 1)))).float().unsqueeze(0)
+                    real_LR = torch.from_numpy(np.ascontiguousarray(np.transpose(real_LR, (2, 0, 1)))).float().unsqueeze(0)
+
+                    LR = torch.cat([fake_LR, real_LR], dim=0)
+
+                    data = {'LR': LR}
+                    model.feed_data(data, False)
+                    model.test(tsamples=True)
+                    visuals = model.get_current_visuals(tsamples=True)
+                    fake_SR = visuals['SR'][0]
+                    real_SR = visuals['SR'][1]
+
+                    # image_1 = torch.cat([fake_LR[0], fake_SR[0]], dim=2)
+                    # image_2 = torch.cat([real_LR[0], real_SR[0]], dim=2)
+                    image = np.clip(torch.cat([fake_SR, real_SR], dim=2).numpy(), 0, 1)*255
+                    tb_logger.add_image('train/train_samples', image, current_step)
+                logger.info('Saved training Samples')
+
 
             # validation
             if current_step % opt['train']['val_freq'] == 0:
