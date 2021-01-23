@@ -173,7 +173,11 @@ class DASR_FS_ESRGAN_patchGAN_Mix(BaseModel):
 
         else:
             self.var_L = data['LR'].to(self.device)
-            self.var_H = data['HR'].to(self.device)
+            if 'HR' in data:
+                self.var_H = data['HR'].to(self.device)
+                self.needHR = True
+            else:
+                self.needHR = False
 
 
 
