@@ -173,7 +173,8 @@ class DASR_FS_ESRGAN_patchGAN_Mix(BaseModel):
 
         else:
             self.var_L = data['LR'].to(self.device)
-            self.var_H = data['HR'].to(self.device)
+            self.needHR = False
+            # self.var_H = data['HR'].to(self.device)
 
 
 
@@ -342,7 +343,7 @@ class DASR_FS_ESRGAN_patchGAN_Mix(BaseModel):
         out_dict['SR'] = self.fake_H.detach()[0].float().cpu()
         if self.val_lpips:
             out_dict['LPIPS'] = self.LPIPS.detach().float().cpu()
-        if need_HR:
+        if self.needHR:
             out_dict['HR'] = self.var_H.detach()[0].float().cpu()
         return out_dict
 

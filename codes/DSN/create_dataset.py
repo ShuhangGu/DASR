@@ -17,7 +17,7 @@ parser.add_argument('--dataset', default='df2k', type=str, help='selecting diffe
 parser.add_argument('--track', default='train', type=str, help='selecting train or valid track')
 parser.add_argument('--num_res_blocks', default=8, type=int, help='number of ResNet blocks')
 parser.add_argument('--cleanup_factor', default=2, type=int, help='downscaling factor for image cleanup')
-parser.add_argument('--upscale_factor', default=4, type=int, choices=[4], help='super resolution upscale factor')
+parser.add_argument('--upscale_factor', default=2, type=int, choices=[4,2], help='super resolution upscale factor')
 opt = parser.parse_args()
 
 # define input and target directories

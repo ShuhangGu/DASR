@@ -41,7 +41,7 @@ parser.add_argument('--name', default='0603_DSN_LRs', type=str, help='additional
 parser.add_argument('--dataset', default='aim2019', type=str, help='selecting different datasets')
 parser.add_argument('--including_source_ddm', dest='including_source_ddm', action='store_true', help='generate ddm from '
                                                                                                      'source images')
-parser.add_argument('--upscale_factor', default=4, type=int, choices=[4, 1], help='super resolution upscale factor')
+parser.add_argument('--upscale_factor', default=4, type=int, choices=[4, 1, 2], help='super resolution upscale factor')
 
 opt = parser.parse_args()
 
@@ -67,6 +67,11 @@ elif opt.dataset == 'realsr_tddiv2k':
 elif opt.dataset == 'realsr_tdrealsr':
     input_source_dir = PATHS['realsr']['tdrealsr']['source']
     input_target_dir = PATHS['realsr']['tdrealsr']['target']
+    source_files = [os.path.join(input_source_dir, x) for x in os.listdir(input_source_dir) if utils.is_image_file(x)]
+    target_files = [os.path.join(input_target_dir, x) for x in os.listdir(input_target_dir) if utils.is_image_file(x)]
+elif opt.dataset == 'realsr_tdrealsr_2x':
+    input_source_dir = PATHS['realsr']['tdrealsr_x2']['source']
+    input_target_dir = PATHS['realsr']['tdrealsr_x2']['target']
     source_files = [os.path.join(input_source_dir, x) for x in os.listdir(input_source_dir) if utils.is_image_file(x)]
     target_files = [os.path.join(input_target_dir, x) for x in os.listdir(input_target_dir) if utils.is_image_file(x)]
 elif opt.dataset == 'camerasr':

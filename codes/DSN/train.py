@@ -21,7 +21,7 @@ def saveimgs(img_list, img_name, savepath):
     print(savepath+img_name.split('.')[0]+'.png')
 
 parser = argparse.ArgumentParser(description='Train Downscaling Models')
-parser.add_argument('--upscale_factor', default=4, type=int, choices=[1, 4], help='super resolution upscale factor')
+parser.add_argument('--upscale_factor', default=4, type=int, choices=[1, 2, 4], help='super resolution upscale factor')
 parser.add_argument('--crop_size', default=256, type=int, help='training images crop size')
 parser.add_argument('--crop_size_val', default=256, type=int, help='validation images crop size')
 parser.add_argument('--batch_size', default=4, type=int, help='batch size used')
@@ -102,6 +102,7 @@ elif opt.dataset == 'realsr':
     val_set = loader.Val_Deresnet_Dataset(PATHS['realsr'][opt.artifacts]['valid_hr'],
                                 lr_dir=PATHS['realsr'][opt.artifacts]['valid_lr'], **vars(opt))
     val_loader = DataLoader(dataset=val_set, num_workers=1, batch_size=1, shuffle=False)
+
 
 elif opt.dataset == 'camerasr':
     train_set = loader.Train_Deresnet_Dataset(PATHS['camerasr'][opt.artifacts]['source'], PATHS['aim2019'][opt.artifacts]['target'],

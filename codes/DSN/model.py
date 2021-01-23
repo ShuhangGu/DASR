@@ -38,13 +38,18 @@ class De_resnet(nn.Module):
                 nn.Conv2d(64, 64, kernel_size=3, stride=2, padding=1),
                 nn.PReLU()
             )
+        elif self.scale == 2:
+            self.down_sample = nn.Sequential(
+                nn.Conv2d(64, 64, kernel_size=3, stride=2, padding=1),
+                nn.PReLU(),
+            )
         self.block_output = nn.Conv2d(64, 3, kernel_size=3, padding=1)
 
     def forward(self, x):
         block = self.block_input(x)
         for res_block in self.res_blocks:
             block = res_block(block)
-        if self.scale == 4:
+        if self.down_sample:
             block = self.down_sample(block)
         block = self.block_output(block)
         return torch.sigmoid(block)
@@ -269,7 +274,9 @@ class FilterHigh(nn.Module):
             return img
 
 if __name__ == '__main__':
-    model_d = Discriminator()
-    d = model_d.state_dict()
-    torch.save(d, './test.tar')
+    model_g = Generator()
+    t = torch.load('/media/4T/Dizzy/github/DASR/DSN_experiments/0121_DeResnet+avgpool+FSD+wtex0.03/checkpoints/last_iteration.tar')
+    model_g = model_g.load_state_dict(t['model_g_state_dict'])
+    # d = model_d.state_dict()
+    # torch.save(d, './test.tar')
     print()
