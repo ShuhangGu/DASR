@@ -153,7 +153,7 @@ def main():
                     # image_1 = torch.cat([fake_LR[0], fake_SR[0]], dim=2)
                     # image_2 = torch.cat([real_LR[0], real_SR[0]], dim=2)
                     image = np.clip(torch.cat([fake_SR, real_SR], dim=2).numpy(), 0, 1)
-                    tb_logger.add_image('train/train_samples', image, current_step)
+                    tb_logger.add_image('train/train_samples_{}'.format(str(i)), image, current_step)
                 logger.info('Saved training Samples')
 
 

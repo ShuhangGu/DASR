@@ -230,18 +230,18 @@ class RRDBNet(nn.Module):
         x = self.model(x)
         return x
 
-    def load_state_dict(self, state_dict, strict=False):
-        own_state = self.state_dict()
-        for name, param in state_dict.items():
-            if name in own_state:
-                if isinstance(param, nn.Parameter):
-                    param = param.data
-                try:
-                    own_state[name].copy_(param)
-                except Exception:
-                    print(name)
-            else:
-                print(name)
+    # def load_state_dict(self, state_dict, strict=False):
+    #     own_state = self.state_dict()
+    #     for name, param in state_dict.items():
+    #         if name in own_state:
+    #             if isinstance(param, nn.Parameter):
+    #                 param = param.data
+    #             try:
+    #                 own_state[name].copy_(param)
+    #             except Exception:
+    #                 print(name)
+    #         else:
+    #             print(name)
                     # if name.find('tail') >= 0:
                     #     print('Replace pre-trained upsampler to new one...')
                     # else:
