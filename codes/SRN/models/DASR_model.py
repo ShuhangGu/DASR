@@ -56,6 +56,11 @@ class DASR_FS_ESRGAN_patchGAN_Mix(BaseModel):
             self.fs = self.wavelet_s
         elif train_opt['fs'] == 'gau':
             # Gaussian
+            self.filter_low, self.filter_high = FilterLow(gaussian=True).to(self.device), \
+                                            FilterHigh(gaussian=True).to(self.device)
+            self.fs = self.gaussian_s
+        elif train_opt['fs'] == 'avgpool':
+            # Gaussian
             self.filter_low, self.filter_high = FilterLow().to(self.device), \
                                             FilterHigh().to(self.device)
             self.fs = self.gaussian_s
