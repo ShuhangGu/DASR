@@ -138,8 +138,8 @@ def main():
                     real_LR = real_LR[h // 2 - 64:h // 2 + 64, w//2 - 64:w//2+64, :]
 
 
-                    fake_LR = torch.from_numpy(np.ascontiguousarray(np.transpose(fake_LR, (2, 0, 1)))).float().unsqueeze(0)
-                    real_LR = torch.from_numpy(np.ascontiguousarray(np.transpose(real_LR, (2, 0, 1)))).float().unsqueeze(0)
+                    fake_LR = torch.from_numpy(np.ascontiguousarray(np.transpose(fake_LR, (2, 0, 1)))).float().unsqueeze(0) / 255
+                    real_LR = torch.from_numpy(np.ascontiguousarray(np.transpose(real_LR, (2, 0, 1)))).float().unsqueeze(0) / 255
 
                     LR = torch.cat([fake_LR, real_LR], dim=0)
 
@@ -152,7 +152,7 @@ def main():
 
                     # image_1 = torch.cat([fake_LR[0], fake_SR[0]], dim=2)
                     # image_2 = torch.cat([real_LR[0], real_SR[0]], dim=2)
-                    image = np.clip(torch.cat([fake_SR, real_SR], dim=2).numpy(), 0, 1)
+                    image = np.clip(torch.cat([fake_SR, real_SR], dim=2), 0, 1)
                     tb_logger.add_image('train/train_samples_{}'.format(str(i)), image, current_step)
                 logger.info('Saved training Samples')
 
