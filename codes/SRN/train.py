@@ -144,7 +144,7 @@ def main():
                         logger.info('{} LPIPS: {:.3f}'.format(val_data['HR_path'][0].split('/')[-1], lpips.numpy()))
                         # print('img:', val_data['HR_path'][0].split('/')[-1], 'LPIPS: %.3f' % lpips.numpy())
                     else:
-                        print('img:', val_data['HR_path'][0].split('/')[-1])
+                        print('img:', val_data['LR_path'][0].split('/')[-1])
                     # Save SR images for reference
                     save_img_path = os.path.join(img_dir, '{:s}_{:d}.png'.format(\
                         img_name, current_step))
