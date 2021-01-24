@@ -764,9 +764,8 @@ class DiscriminatorBasic(nn.Module):
 class NLayerDiscriminator(nn.Module):
     """Defines a PatchGAN discriminator"""
 
-    def __init__(self, input_nc, ndf=64, n_layers=3, norm_layer='Instance', kw=4, padw=1):
+    def __init__(self, input_nc, ndf=64, n_layers=3, norm_layer=nn.BatchNorm2d):
         """Construct a PatchGAN discriminator
-
         Parameters:
             input_nc (int)  -- the number of channels in input images
             ndf (int)       -- the number of filters in the last conv layer
@@ -774,19 +773,10 @@ class NLayerDiscriminator(nn.Module):
             norm_layer      -- normalization layer
         """
         super(NLayerDiscriminator, self).__init__()
-        if norm_layer == 'Instance':
-            norm_layer = nn.InstanceNorm2d
-        elif norm_layer == 'Batch':
-            norm_layer = nn.BatchNorm2d
-        if type(norm_layer) == functools.partial:  # no need to use bias as BatchNorm2d has affine parameters
-            use_bias = norm_layer.func == nn.InstanceNorm2d
-        else:
-            use_bias = norm_layer == nn.InstanceNorm2d
-
+        use_bias = False
         kw = 4
         padw = 1
         sequence = [nn.Conv2d(input_nc, ndf, kernel_size=kw, stride=2, padding=padw), nn.LeakyReLU(0.2, True)]
-        # sequence = [nn.Conv2d(input_nc, ndf, kernel_size=kw, stride=2, padding=0), nn.LeakyReLU(0.2, True)]
         nf_mult = 1
         nf_mult_prev = 1
         for n in range(1, n_layers):  # gradually increase the number of filters
@@ -807,22 +797,23 @@ class NLayerDiscriminator(nn.Module):
         ]
 
         sequence += [nn.Conv2d(ndf * nf_mult, 1, kernel_size=kw, stride=1, padding=padw)]  # output 1 channel prediction map
+        # TODO
         self.model = nn.Sequential(*sequence)
 
-    def forward(self, input):
+    def forward(self, x):
         """Standard forward."""
-        return self.model(input)
+        return self.model(x)
 
-    def load_state_dict(self, state_dict, strict=False):
-        own_state = self.state_dict()
-        for name, param in state_dict.items():
-            if name in own_state:
-                if isinstance(param, nn.Parameter):
-                    param = param.data
-                try:
-                    own_state[name].copy_(param)
-                except Exception:
-                    print(name)
+    # def load_state_dict(self, state_dict, strict=False):
+    #     own_state = self.state_dict()
+    #     for name, param in state_dict.items():
+    #         if name in own_state:
+    #             if isinstance(param, nn.Parameter):
+    #                 param = param.data
+    #             try:
+    #                 own_state[name].copy_(param)
+    #             except Exception:
+    #                 print(name)
                     # if name.find('tail') >= 0:
                     #     print('Replace pre-trained upsampler to new one...')
                     # else:

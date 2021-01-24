@@ -121,7 +121,7 @@ def main():
                 logger.info(message)
 
             # training samples
-            if current_step % opt['train']['save_tsamples'] == 0:
+            if opt['train']['save_tsamples'] and current_step % opt['train']['save_tsamples'] == 0:
                 fake_LRs = os.listdir(opt['datasets']['train']['dataroot_fake_LR'])
                 real_LRs = os.listdir(opt['datasets']['train']['dataroot_real_LR'])
 

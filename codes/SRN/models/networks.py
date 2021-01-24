@@ -169,8 +169,7 @@ def define_D(opt):
     elif which_model == 'discriminator_vgg_128_SN':
         netD = arch.Discriminator_VGG_128_SN()
     elif which_model == 'discriminator_patch':
-        netD = arch.NLayerDiscriminator(opt_net['in_nc'], n_layers=opt_net['n_layers'],
-                                        norm_layer=opt_net['norm_type'])
+        netD = arch.NLayerDiscriminator(opt_net['in_nc'], n_layers=opt_net['n_layers'])
     elif which_model == 'DSGAN':
         netD = arch.DiscriminatorBasic(n_input_channels=opt_net['in_nc'])
     else:
