@@ -56,13 +56,13 @@ class DASR_FS_ESRGAN_patchGAN_Mix(BaseModel):
             self.fs = self.wavelet_s
         elif train_opt['fs'] == 'gau':
             # Gaussian
-            self.filter_low, self.filter_high = FilterLow(gaussian=True).to(self.device), \
-                                            FilterHigh(gaussian=True).to(self.device)
+            self.filter_low, self.filter_high = FilterLow(kernel_size=train_opt['fs_kernel_size'], gaussian=True).to(self.device), \
+                                            FilterHigh(kernel_size=train_opt['fs_kernel_size'], gaussian=True).to(self.device)
             self.fs = self.gaussian_s
         elif train_opt['fs'] == 'avgpool':
             # Gaussian
-            self.filter_low, self.filter_high = FilterLow().to(self.device), \
-                                            FilterHigh().to(self.device)
+            self.filter_low, self.filter_high = FilterLow(kernel_size=train_opt['fs_kernel_size']).to(self.device), \
+                                            FilterHigh(kernel_size=train_opt['fs_kernel_size']).to(self.device)
             self.fs = self.gaussian_s
         else:
             raise NotImplementedError('FS type [{:s}] not recognized.'.format(train_opt['fs']))
@@ -212,23 +212,23 @@ class DASR_FS_ESRGAN_patchGAN_Mix(BaseModel):
                     l_g_pix = self.l_pix_w * \
                               torch.mean(self.weights * torch.abs(self.fake_SR_source - self.real_HR_source))
                 else:
-                    l_g_pix = self.l_pix_w * self.cri_pix(self.fake_SR_source, self.real_HR_source)
-                l_g_total += l_g_pix
+                    l_g_pix = self.cri_pix(self.fake_SR_source, self.real_HR_source)
+                l_g_total += self.l_pix_w * l_g_pix
 
                 if self.sup_LL:
-                    l_g_LL_pix = self.l_pix_LL_w * self.cri_pix(self.fake_SR_LL_source, self.real_HR_LL_source)
-                    l_g_total += l_g_LL_pix
+                    l_g_LL_pix = self.cri_pix(self.fake_SR_LL_source, self.real_HR_LL_source)
+                    l_g_total += self.l_pix_LL_w * l_g_LL_pix
 
             if self.l_fea_type in ['l1', 'l2'] and self.cri_fea:  # feature loss
                 real_fea = self.netF(self.real_HR_source).detach()
                 fake_fea = self.netF(self.fake_SR_source)
-                l_g_fea = self.l_fea_w * self.cri_fea(fake_fea, real_fea)
+                l_g_fea = self.cri_fea(fake_fea, real_fea)
 
-                l_g_total += l_g_fea
+                l_g_total += self.l_fea_w * l_g_fea
 
             elif self.l_fea_type == 'LPIPS' and self.cri_fea:
-                l_g_fea = self.l_fea_w * self.cri_fea(self.fake_SR_source, self.real_HR_source)
-                l_g_total += l_g_fea
+                l_g_fea = self.cri_fea(self.fake_SR_source, self.real_HR_source)
+                l_g_total += self.l_fea_w * l_g_fea
 
 
             # G gan target loss
@@ -241,8 +241,8 @@ class DASR_FS_ESRGAN_patchGAN_Mix(BaseModel):
                         (self.cri_gan(pred_g_Hf_target_fake - pred_g_Hf_target_real.mean(0, keepdim=True), True) +
                         self.cri_gan(pred_g_Hf_target_real - pred_g_Hf_target_fake.mean(0, keepdim=True), False)) / 2
                 else:
-                    l_g_gan_target_Hf = self.l_gan_H_target_w * self.cri_gan(pred_g_Hf_target_fake, True)
-                l_g_total += l_g_gan_target_Hf
+                    l_g_gan_target_Hf = self.cri_gan(pred_g_Hf_target_fake, True)
+                l_g_total += self.l_gan_H_target_w * l_g_gan_target_Hf
 
             # G_gan_source_loss
             if self.l_gan_H_source_w > 0:
@@ -303,15 +303,15 @@ class DASR_FS_ESRGAN_patchGAN_Mix(BaseModel):
         if step % self.G_update_inter == 0:
             # G
             if self.cri_pix:
-                self.log_dict['l_g_pix'] = l_g_pix.item()
+                self.log_dict['loss/l_g_pix'] = l_g_pix.item()
                 if self.sup_LL:
-                    self.log_dict['l_g_LL_pix'] = l_g_LL_pix.item()
+                    self.log_dict['loss/l_g_LL_pix'] = l_g_LL_pix.item()
             if self.cri_fea:
-                self.log_dict['l_g_fea'] = l_g_fea.item()
+                self.log_dict['loss/l_g_fea'] = l_g_fea.item()
             if self.l_gan_H_target_w > 0:
-                self.log_dict['l_g_gan_target_Hf'] = l_g_gan_target_Hf.item()
+                self.log_dict['loss/l_g_gan_target_Hf'] = l_g_gan_target_Hf.item()
             if self.l_gan_H_source_w > 0:
-                self.log_dict['l_g_gan_source_H'] = l_g_gan_source_Hf.item()
+                self.log_dict['loss/l_g_gan_source_H'] = l_g_gan_source_Hf.item()
 
 
         # if self.opt['train']['gan_type'] == 'wgan-gp':
@@ -319,13 +319,13 @@ class DASR_FS_ESRGAN_patchGAN_Mix(BaseModel):
         # D outputs
         if step % self.D_update_inter == 0:
             if self.l_gan_H_target_w > 0:
-                self.log_dict['l_d_target_total'] = l_d_target_total.item()
-                self.log_dict['D_real_target_H'] = torch.mean(pred_d_target_real.detach()).item()
-                self.log_dict['D_fake_target_H'] = torch.mean(pred_d_target_fake.detach()).item()
+                self.log_dict['loss/l_d_target_total'] = l_d_target_total.item()
+                self.log_dict['disc_Score/D_real_target_H'] = torch.mean(pred_d_target_real.detach()).item()
+                self.log_dict['disc_Score/D_fake_target_H'] = torch.mean(pred_d_target_fake.detach()).item()
             if self.l_gan_H_source_w > 0:
-                self.log_dict['l_d_total'] = l_d_source_total.item()
-                self.log_dict['D_real_source_H'] = torch.mean(pred_d_source_real.detach()).item()
-                self.log_dict['D_fake_source_H'] = torch.mean(pred_d_source_fake.detach()).item()
+                self.log_dict['loss/l_d_total'] = l_d_source_total.item()
+                self.log_dict['disc_Score/D_real_source_H'] = torch.mean(pred_d_source_real.detach()).item()
+                self.log_dict['disc_Score/D_fake_source_H'] = torch.mean(pred_d_source_fake.detach()).item()
 
 
     def test(self, tsamples=False):
@@ -348,6 +348,11 @@ class DASR_FS_ESRGAN_patchGAN_Mix(BaseModel):
     def get_current_visuals(self, need_HR=True, tsamples=False):
         out_dict = OrderedDict()
         out_dict['LR'] = self.var_L.detach()[0].float().cpu()
+        if tsamples:
+            out_dict['hf'] = self.filter_high(self.fake_H).float().cpu()
+            out_dict['gt_hf'] = self.filter_high(self.var_H).float().cpu()
+            out_dict['HR'] = self.var_H.detach()[0].float().cpu()
+            out_dict['HR_hf'] = self.filter_high(self.var_H).detach().float().cpu()
         if not tsamples:
             out_dict['SR'] = self.fake_H.detach()[0].float().cpu()
         else:

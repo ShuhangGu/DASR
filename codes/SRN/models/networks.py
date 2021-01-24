@@ -203,7 +203,7 @@ def define_pairD(opt):
     elif which_model == 'discriminator_vgg_128_SN':
         netD = arch.Discriminator_VGG_128_SN()
     elif which_model == 'discriminator_patch':
-        netD = arch.NLayerDiscriminator(opt_net['in_nc'], opt_net['nf'], opt_net['n_layers'], opt_net['norm_type'])
+        netD = arch.NLayerDiscriminator(opt_net['in_nc'], opt_net['nf'], opt_net['n_layers'])
     else:
         raise NotImplementedError('Discriminator model [{:s}] not recognized'.format(which_model))
 

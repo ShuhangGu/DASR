@@ -124,15 +124,20 @@ def main():
             if opt['train']['save_tsamples'] and current_step % opt['train']['save_tsamples'] == 0:
                 fake_LRs = os.listdir(opt['datasets']['train']['dataroot_fake_LR'])
                 real_LRs = os.listdir(opt['datasets']['train']['dataroot_real_LR'])
+                HRs = os.listdir(opt['datasets']['train']['dataroot_HR'])
 
                 for i in range(5):
                     fake_LR_path = os.path.join(opt['datasets']['train']['dataroot_fake_LR'], fake_LRs[i])
                     real_LR_path = os.path.join(opt['datasets']['train']['dataroot_real_LR'], real_LRs[i])
+                    HR_path = os.path.join(opt['datasets']['train']['dataroot_HR'], HRs[i])
                     fake_LR = np.array(Image.open(fake_LR_path))
                     real_LR = np.array(Image.open(real_LR_path))
+                    HR = np.array(Image.open(HR_path))
 
                     h, w, _ = fake_LR.shape
                     fake_LR = fake_LR[h // 2 - 64:h // 2 + 64, w//2 - 64:w//2+64, :]
+                    h, w, _ = HR.shape
+                    HR = HR[h // 2 - 64*4:h // 2 + 64*4, w//2 - 64*4:w//2+64*4, :]
 
                     h, w, _ = real_LR.shape
                     real_LR = real_LR[h // 2 - 64:h // 2 + 64, w//2 - 64:w//2+64, :]
@@ -140,19 +145,26 @@ def main():
 
                     fake_LR = torch.from_numpy(np.ascontiguousarray(np.transpose(fake_LR, (2, 0, 1)))).float().unsqueeze(0) / 255
                     real_LR = torch.from_numpy(np.ascontiguousarray(np.transpose(real_LR, (2, 0, 1)))).float().unsqueeze(0) / 255
-
+                    HR = torch.from_numpy(np.ascontiguousarray(np.transpose(HR, (2, 0, 1)))).float().unsqueeze(0) / 255
                     LR = torch.cat([fake_LR, real_LR], dim=0)
 
-                    data = {'LR': LR}
+                    data = {'LR': LR, 'HR': HR}
                     model.feed_data(data, False)
                     model.test(tsamples=True)
                     visuals = model.get_current_visuals(tsamples=True)
                     fake_SR = visuals['SR'][0]
                     real_SR = visuals['SR'][1]
+                    fake_hf = visuals['hf'][0]
+                    real_hf = visuals['hf'][1]
+                    HR = visuals['HR']
+                    HR_hf = visuals['HR_hf'][0]
+
 
                     # image_1 = torch.cat([fake_LR[0], fake_SR[0]], dim=2)
                     # image_2 = torch.cat([real_LR[0], real_SR[0]], dim=2)
-                    image = np.clip(torch.cat([fake_SR, real_SR], dim=2), 0, 1)
+                    image_1 = np.clip(torch.cat([fake_SR, HR, real_SR], dim=2), 0, 1)
+                    image_2 = np.clip(torch.cat([fake_hf, HR_hf, real_hf], dim=2), 0, 1)
+                    image = torch.cat([image_1, image_2], dim=1)
                     tb_logger.add_image('train/train_samples_{}'.format(str(i)), image, current_step)
                 logger.info('Saved training Samples')
 
