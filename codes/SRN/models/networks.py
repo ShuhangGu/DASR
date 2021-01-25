@@ -142,8 +142,9 @@ def define_D(opt):
     which_model = opt_net['which_model_D']
 
     if which_model == 'discriminator_vgg_128':
-        netD = arch.Discriminator_VGG_128(in_nc=opt_net['in_nc'], base_nf=opt_net['nf'], \
-            norm_type=opt_net['norm_type'], mode=opt_net['mode'], act_type=opt_net['act_type'])
+        # netD = arch.Discriminator_VGG_128(in_nc=opt_net['in_nc'], base_nf=opt_net['nf'], \
+        #     norm_type=opt_net['norm_type'], mode=opt_net['mode'], act_type=opt_net['act_type'])
+        netD = arch.Discriminator_VGG_128(in_nc=opt_net['in_nc'],  nf=opt_net['nf'])
 
     elif which_model == 'dis_acd':  # sft-gan, Auxiliary Classifier Discriminator
         netD = sft_arch.ACD_VGG_BN_96()
@@ -186,8 +187,7 @@ def define_pairD(opt):
     which_model = opt_net['which_model_pairD']
 
     if which_model == 'discriminator_vgg_128':
-        netD = arch.Discriminator_VGG_128(in_nc=opt_net['in_nc'], base_nf=opt_net['nf'], \
-            norm_type=opt_net['norm_type'], mode=opt_net['mode'], act_type=opt_net['act_type'])
+        netD = arch.Discriminator_VGG_128(in_nc=opt_net['in_nc'], nf=opt_net['nf'])
 
     elif which_model == 'dis_acd':  # sft-gan, Auxiliary Classifier Discriminator
         netD = sft_arch.ACD_VGG_BN_96()
@@ -202,6 +202,8 @@ def define_pairD(opt):
             norm_type=opt_net['norm_type'], mode=opt_net['mode'], act_type=opt_net['act_type'])
     elif which_model == 'discriminator_vgg_128_SN':
         netD = arch.Discriminator_VGG_128_SN()
+    elif which_model == 'discriminator_vgg_128':
+        netD = arch.Discriminator_VGG_128()
     elif which_model == 'discriminator_patch':
         netD = arch.NLayerDiscriminator(opt_net['in_nc'], opt_net['nf'], opt_net['n_layers'])
     else:
