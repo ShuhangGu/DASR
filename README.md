@@ -1,6 +1,6 @@
 # DASR
-Official PyTorch code for our  paper DASR: [Unsupervised Real-world Image Super Resolution via 
-Domain-distance Aware Training](https://arxiv.org/abs/2004.01178). (CVPR-2021)
+(CVPR-2021) Official PyTorch code for our  paper DASR: [Unsupervised Real-world Image Super Resolution via 
+Domain-distance Aware Training](https://arxiv.org/abs/2004.01178). 
 
 
 ### Abstract
