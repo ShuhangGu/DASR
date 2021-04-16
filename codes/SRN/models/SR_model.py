@@ -92,11 +92,11 @@ class SRModel(BaseModel):
                 self.fake_H = forward_chop(self.var_L, self.scale, self.netG)
             else:
                 self.fake_H = self.netG(self.var_L)
-            # if self.val_lpips:
-            #     fake_H, real_H = util.tensor2img(self.fake_H), util.tensor2img(self.real_H)
-            #     fake_H, real_H = fake_H[:, :, [2, 1, 0]], real_H[:, :, [2, 1, 0]]
-            #     fake_H, real_H = util_LPIPS.im2tensor(fake_H), util_LPIPS.im2tensor(real_H)
-            #     self.LPIPS = self.cri_fea_lpips(real_H, fake_H)[0][0][0][0]
+            if self.val_lpips:
+                fake_H, real_H = util.tensor2img(self.fake_H), util.tensor2img(self.real_H)
+                fake_H, real_H = fake_H[:, :, [2, 1, 0]], real_H[:, :, [2, 1, 0]]
+                fake_H, real_H = util_LPIPS.im2tensor(fake_H), util_LPIPS.im2tensor(real_H)
+                self.LPIPS = self.cri_fea_lpips(real_H, fake_H)[0][0][0][0]
         self.netG.train()
 
     def test_x8(self):
@@ -148,8 +148,8 @@ class SRModel(BaseModel):
         out_dict['SR'] = self.fake_H.detach()[0].float().cpu()
         if need_HR:
             out_dict['HR'] = self.real_H.detach()[0].float().cpu()
-            # if self.val_lpips:
-            #     out_dict['LPIPS'] = self.LPIPS.detach().float().cpu()
+            if self.val_lpips:
+                out_dict['LPIPS'] = self.LPIPS.detach().float().cpu()
         return out_dict
 
     def print_network(self):

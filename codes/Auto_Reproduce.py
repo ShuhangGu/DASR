@@ -17,9 +17,11 @@ def create_auto_json(dataset, artifact):
 
         config['name'] = '0603_DASR_SRN_auto_reproduce_{}'.format(dataset)
         config['datasets']['train']['dataroot_HR'] = PATHS[dataset][artifact]['target']
-        config['datasets']['train']['dataroot_fake_LR'] = '../../DSN_results/0603_DSN_LRs_{}/imgs'.format(dataset)
+        config['datasets']['train']['dataroot_fake_LR'] = '../../DSN_results/0603_DSN_LRs_{}/imgs_from_target'.format(dataset)
         config['datasets']['train']['dataroot_real_LR'] = PATHS[dataset][artifact]['source']
-        config['datasets']['train']['dataroot_fake_weights'] = '../../DSN_results/0603_DSN_LRs_{}/ddm'.format(dataset)
+        config['datasets']['train']['dataroot_fake_weights'] = '../../DSN_results/0603_DSN_LRs_{}/ddm_target'.format(dataset)
+        config['datasets']['val']['dataroot_HR'] = PATHS[dataset][artifact]['valid_hr']
+        config['datasets']['val']['dataroot_LR'] = PATHS[dataset][artifact]['valid_lr']
         json_file.seek(0)  # rewind
         json.dump(config, json_file)
         json_file.truncate()  # if the new data is smaller than the previous
@@ -33,7 +35,7 @@ def main():
                         help='set artifact in  (tdsr, tdrealsr, tddiv2k)')
     opt = parser.parse_args()
 
-    os.system('cd ./DSN; sh auto_reproduce_launcher_{}.sh'.format(opt.dataset))
+    # os.system('cd ./DSN; sh auto_reproduce_launcher_{}.sh'.format(opt.dataset))
     create_auto_json(opt.dataset, opt.artifact)
     os.system('cd ./SRN; python train.py -opt options/train/train_DASR_auto_reproduce_{}.json'.format(opt.dataset))
 

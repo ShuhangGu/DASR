@@ -1,35 +1,35 @@
 {
-  "name": "0623_RRDB_PSNR_x4_AIM_wtex0.01LR" //  please remove "debug_" during training
+  "name": "0124_RRDB_PSNR_ntire_track1" //  please remove "debug_" during training
   , "use_tb_logger": true
   , "model":"sr"
   , "scale": 4
   , "gpu_ids": [0]
-  , "chop": false
-  , "val_lpips": true
+  , "chop": true
+  , "val_lpips": false
   ,"datasets": {
     "train": {
-      "name": "AIM"
+      "name": "NTIRE2020"
       , "mode": "LRHR"
       , "dataroot_HR": "/media/4T/Dizzy/AIM/AIM_datasets/DIV2K_train_HR"
-      , "dataroot_LR": "/media/4T/Dizzy/real-world-sr/results/0622_AIM_FSD_Gau_wtex0.01LR/imgs"
+      , "dataroot_LR": "/media/4T/Dizzy/github/DASR/DSN_results/0124_DeResnet_FSD_iptrack_gau_wtex0.015/imgs_from_target"
       , "subset_file": null
       , "use_shuffle": true
       , "n_workers": 8
-      , "batch_size": 11
+      , "batch_size": 3
       , "HR_size": 192 // 128 | 192
       , "use_flip": true
       , "use_rot": true
     }
     , "val": {
-      "name": "val_AIM"
-      , "mode": "LRHR"
-      , "dataroot_HR": "/media/4T/Dizzy/AIM/AIM_datasets/DIV2K_val100/DIV2K_valid_HR"
-      , "dataroot_LR": "/media/4T/Dizzy/AIM/AIM_datasets/ValidationSource"
+      "name": "val_NTIRE2020"
+      , "mode": "LR"
+      , "dataroot_HR": null
+      , "dataroot_LR": "/media/4T/Dizzy/SR_classical_DataSet/NTIRE2020/dped/val"
     }
   }
 
   , "path": {
-    "root": "/media/4T/Dizzy/BasicSR-master"
+    "root": "../../SRN_experiments"
      , "resume_state": null
     , "pretrain_model_G": null
   }
@@ -60,6 +60,7 @@
 
     , "manual_seed": 0
     , "niter": 1e6
+    , "save_tsamples": 0.0
   }
 
   , "logger": {

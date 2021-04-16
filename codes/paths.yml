@@ -1,7 +1,7 @@
 aim2019:
   tdsr:
     source: '/media/4T/Dizzy/AIM/AIM_datasets/TrainingSource'
-    target: '/media/4T/Dizzy/AIM/AIM_datasets/DIV2K_val100/DIV2K_valid_HR'
+    target: '/media/4T/Dizzy/AIM/AIM_datasets/DIV2K_train_HR'
     valid_hr: '/media/4T/Dizzy/AIM/AIM_datasets/DIV2K_val100/DIV2K_valid_HR'
     valid_lr: '/media/4T/Dizzy/AIM/AIM_datasets/ValidationSource'
 
@@ -12,6 +12,11 @@ ntire2020:
     target: '/media/4T/Dizzy/SR_classical_DataSet/NTIRE2020/RealWorld/ImgProTrack/Corrupted-tr-y'
     valid_hr: '/media/4T/Dizzy/AIM/AIM_datasets/DIV2K_val100/DIV2K_valid_HR'
     valid_lr: '/media/4T/Dizzy/SR_classical_DataSet/NTIRE2020/RealWorld/ImgProTrack/Corrupted-tr-y'
+  ip:
+    source: '/media/4T/Dizzy/SR_classical_DataSet/NTIRE2020/RealWorld/iphoneTrack/DPEDiphone-tr-x'
+    target: '/media/4T/Dizzy/SR_classical_DataSet/NTIRE2020/RealWorld/iphoneTrack/DPEDiphone-tr-y'
+    valid_hr: '/media/4T/Dizzy/AIM/AIM_datasets/DIV2K_val100/DIV2K_valid_HR'
+    valid_lr: '/media/4T/Dizzy/SR_classical_DataSet/NTIRE2020/RealWorld/iphoneTrack/DPEDiphone-va'
 
 realsr:
   tddiv2k:
@@ -24,6 +29,11 @@ realsr:
     target: '/media/4T/Dizzy/SR_classical_DataSet/RealSR/RealSRV3/Canon/Train/4/HR'
     valid_lr: '/media/4T/Dizzy/SR_classical_DataSet/RealSR/RealSRV3/Canon/Test/4/LR'
     valid_hr: '/media/4T/Dizzy/SR_classical_DataSet/RealSR/RealSRV3/Canon/Test/4/HR'
+  tdrealsr_x2:
+    source: '/media/4T/Dizzy/SR_classical_DataSet/RealSR/RealSRV3/Canon/Train/2/LR'
+    target: '/media/4T/Dizzy/SR_classical_DataSet/RealSR/RealSRV3/Canon/Train/2/HR'
+    valid_lr: '/media/4T/Dizzy/SR_classical_DataSet/RealSR/RealSRV3/Canon/Test/2/LR'
+    valid_hr: '/media/4T/Dizzy/SR_classical_DataSet/RealSR/RealSRV3/Canon/Test/2/HR'
 
 camerasr:
   tdsr:

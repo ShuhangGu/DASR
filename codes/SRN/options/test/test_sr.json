@@ -1,5 +1,5 @@
 {
-"name": "0609_AIM"
+"name": "0603_AIM_4x"
   , "suffix": null
   , "model": "sr"
   , "scale": 4
@@ -9,7 +9,7 @@
   , "is_test": true
   ,"datasets": {
     "test_1": { // the 1st test dataset
-      "name": "AIM_DASR_PSNR"
+      "name": "AIM_DASR"
       , "mode": "LRHR"
       , "dataroot_HR": "/media/4T/Dizzy/AIM/AIM_datasets/DIV2K_val100/DIV2K_valid_HR"
       , "dataroot_LR": "/media/4T/Dizzy/AIM/AIM_datasets/ValidationSource"
@@ -30,9 +30,9 @@
 }
 
   , "path": {
-    "root": "/media/4T/Dizzy/BasicSR-master"
-  , "pretrain_model_G": "/media/4T/Dizzy/BasicSR-master/Temp_models/55000_G.pth"
-  , "pretrain_model_D_wlt": "/media/4T/Dizzy/BasicSR-master/Final_models/New/DSDG/current_best/weight_map_D_2750D.pth"
+    "root": "/media/4T/Dizzy/github/DASR"
+  , "pretrain_model_G": "/media/4T/Dizzy/BasicSR-master/Temp_models/AIM_DASR_TDSR_G.pth"
+//  , "pretrain_model_D_wlt": null
   }
 
   , "network_G": {
