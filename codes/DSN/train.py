@@ -10,6 +10,7 @@ import yaml
 import loss
 import model
 import utils
+import json
 from torch.utils.data import DataLoader
 from tensorboardX import SummaryWriter
 from tqdm import tqdm
@@ -33,7 +34,7 @@ parser.add_argument('--adam_beta_1', default=0.5, type=float, help='beta_1 for a
 parser.add_argument('--val_interval', default=5, type=int, help='validation interval')
 parser.add_argument('--val_img_interval', default=5, type=int, help='interval for saving validation images')
 parser.add_argument('--save_model_interval', default=5, type=int, help='interval for saving the model')
-parser.add_argument('--artifacts', default='gaussian', type=str, help='selecting different artifacts type')
+parser.add_argument('--artifacts', default='tdsr', type=str, help='selecting different artifacts type')
 parser.add_argument('--dataset', default='df2k', type=str, help='selecting different datasets')
 parser.add_argument('--flips', dest='flips', action='store_true', help='if activated train images are randomly flipped')
 parser.add_argument('--rotations', dest='rotations', action='store_true',
@@ -50,6 +51,7 @@ parser.add_argument('--no_per_loss', dest='use_per_loss', action='store_false',
                     help='if activated no perceptual loss is used')
 parser.add_argument('--lpips_rot_flip', dest='lpips_rot_flip', action='store_true',
                     help='if activated images are randomly flipped and rotated before being fed to lpips')
+parser.add_argument('--per_type', default='LPIPS', type=str, help='selecting different Perceptual loss type')
 parser.add_argument('--disc_freq', default=1, type=int, help='number of steps until a discriminator updated is made')
 parser.add_argument('--gen_freq', default=1, type=int, help='number of steps until a generator updated is made')
 parser.add_argument('--w_col', default=1, type=float, help='weight of color loss')
@@ -139,7 +141,7 @@ g_loss_module = loss.GeneratorLoss(**vars(opt))
 # filters are used for generating validation images
 filter_low_module = model.FilterLow(kernel_size=opt.kernel_size, gaussian=opt.filter == 'gau', include_pad=False)
 filter_high_module = model.FilterHigh(kernel_size=opt.kernel_size, gaussian=opt.filter == 'gau', include_pad=False)
-
+print('# FS type: {}, kernel size={}'.format(opt.filter, opt.kernel_size))
 if torch.cuda.is_available():
     model_g = model_g.cuda()
     model_d = model_d.cuda()
@@ -177,6 +179,8 @@ if opt.saving:
         save_path = ''
     else:
         save_path = os.path.join('../../DSN_experiments', opt.save_path)
+    if not os.path.exists(os.path.join(save_path)):
+        os.makedirs(os.path.join(save_path))
     dir_index = 0
 
     summary_path = os.path.join('../../DSN_tb_logger', opt.save_path)
@@ -185,6 +189,11 @@ if opt.saving:
     summary_path = os.path.join(summary_path, str(dir_index))
     writer = SummaryWriter(summary_path)
     print('Saving summary into directory ' + summary_path + '/')
+
+    ## save args
+    args_path = os.path.join(save_path, 'commandline_args.txt')
+    with open(args_path, 'w') as f:
+        json.dump(opt.__dict__, f, indent=2)
 
 # training iteration
 for epoch in range(start_epoch, opt.num_epochs + 1):

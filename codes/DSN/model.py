@@ -84,13 +84,13 @@ class Discriminator(nn.Module):
 
         if D_arch.lower() == 'nld_s1':
             self.net = NLayerDiscriminator(input_nc=n_input_channel, ndf=64, n_layers=2, norm_layer=norm_layer, stride=1)
-            print('Initializing NLayer-Discriminator-stride-1 with {} norm-layer'.format(norm_layer.upper()))
+            print('# Initializing NLayer-Discriminator-stride-1 with {} norm-layer'.format(norm_layer.upper()))
         elif D_arch.lower() == 'nld_s2':
             self.net = NLayerDiscriminator(input_nc=n_input_channel, ndf=64, n_layers=2, norm_layer=norm_layer, stride=2)
-            print('Initializing NLayer-Discriminator-stride-2 with {} norm-layer'.format(norm_layer.upper()))
+            print('#Initializing NLayer-Discriminator-stride-2 with {} norm-layer'.format(norm_layer.upper()))
         elif D_arch.lower() == 'fsd':
-            self.net = DiscriminatorBasic(n_input_channels=n_input_channel)
-            print('Initializing FSSR-DiscriminatorBasic')
+            self.net = DiscriminatorBasic(n_input_channels=n_input_channel, norm_layer=norm_layer)
+            print('# Initializing FSSR-DiscriminatorBasic with {} norm layer'.format(norm_layer))
         else:
             raise NotImplementedError('Discriminator architecture [{:s}] not recognized'.format(D_arch))
 
@@ -170,22 +170,40 @@ class NLayerDiscriminator(nn.Module):
 
 
 class DiscriminatorBasic(nn.Module):
-    def __init__(self, n_input_channels=3):
+    def __init__(self, n_input_channels=3, norm_layer='Batch'):
         super(DiscriminatorBasic, self).__init__()
-        self.net = nn.Sequential(
-            nn.Conv2d(n_input_channels, 64, kernel_size=5, padding=2),
-            nn.LeakyReLU(0.2),
+        if norm_layer == 'Batch':
+            self.net = nn.Sequential(
+                nn.Conv2d(n_input_channels, 64, kernel_size=5, padding=2),
+                nn.LeakyReLU(0.2),
 
-            nn.Conv2d(64, 128, kernel_size=5, padding=2),
-            nn.BatchNorm2d(128),
-            nn.LeakyReLU(0.2),
+                nn.Conv2d(64, 128, kernel_size=5, padding=2),
+                nn.BatchNorm2d(128),
+                nn.LeakyReLU(0.2),
 
-            nn.Conv2d(128, 256, kernel_size=5, padding=2),
-            nn.BatchNorm2d(256),
-            nn.LeakyReLU(0.2),
+                nn.Conv2d(128, 256, kernel_size=5, padding=2),
+                nn.BatchNorm2d(256),
+                nn.LeakyReLU(0.2),
 
-            nn.Conv2d(256, 1, kernel_size=1)
-        )
+                nn.Conv2d(256, 1, kernel_size=1)
+            )
+        elif norm_layer == 'Instance':
+            self.net = nn.Sequential(
+                nn.Conv2d(n_input_channels, 64, kernel_size=5, padding=2),
+                nn.LeakyReLU(0.2),
+
+                nn.Conv2d(64, 128, kernel_size=5, padding=2),
+                nn.InstanceNorm2d(128),
+                nn.LeakyReLU(0.2),
+
+                nn.Conv2d(128, 256, kernel_size=5, padding=2),
+                nn.InstanceNorm2d(256),
+                nn.LeakyReLU(0.2),
+
+                nn.Conv2d(256, 1, kernel_size=1)
+            )
+        else:
+            raise NotImplemented('{} norm layer is not recognized'.format(norm_layer))
 
     def forward(self, x):
         return self.net(x)

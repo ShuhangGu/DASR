@@ -46,6 +46,7 @@ class GeneratorLoss(nn.Module):
                  w_tex=0.001, w_per=0.1, gaussian=False, lpips_rot_flip=False, **kwargs):
         super(GeneratorLoss, self).__init__()
         self.pixel_loss = nn.L1Loss()
+        self.per_type = kwargs['per_type']
         if kwargs['filter'].lower() == 'gau':
             self.color_filter = FilterLow(recursions=recursions, stride=stride, kernel_size=kernel_size, padding=False,
                                       gaussian=True)
@@ -61,7 +62,12 @@ class GeneratorLoss(nn.Module):
             self.pixel_loss = self.pixel_loss.cuda()
         if isinstance(self.color_filter, FilterLow):
             self.color_filter = self.color_filter.cuda()
-        self.perceptual_loss = PerceptualLoss(rotations=lpips_rot_flip, flips=lpips_rot_flip)
+        if self.per_type == 'LPIPS':
+            self.perceptual_loss = PerceptualLoss(rotations=lpips_rot_flip, flips=lpips_rot_flip)
+        elif self.per_type == 'VGG':
+            self.perceptual_loss = PerceptualLossVGG16()
+        else:
+            raise NotImplemented('{} is not recognized'.format(self.per_type))
         self.use_perceptual_loss = use_perceptual_loss
         self.wasserstein = wgan
         self.w_col = w_col
