@@ -1,9 +1,9 @@
 {
-  "name": "debug_0416_DSN_gau_k5_Batch" //  please remove "debug_" during training
+  "name": "0416_DSN_avgpool_k7_Batch" //  please remove "debug_" during training
   , "use_tb_logger": true
   , "model":"sr"
   , "scale": 4
-  , "gpu_ids": [0]
+  , "gpu_ids": [1]
   , "chop": false
   , "val_lpips": true
   ,"datasets": {
@@ -11,7 +11,7 @@
       "name": "AIM"
       , "mode": "LRHR"
       , "dataroot_HR": "/media/10T/dizzy/datasets/AIM/DIV2K_train_HR"
-      , "dataroot_LR": "/media/10T/dizzy/DASR/DSN_results/0416_DSN_avgpool_k5/imgs_from_target"
+      , "dataroot_LR": "/media/10T/dizzy/DASR/DSN_results/0416_DSN_avgpool_k7/imgs_from_target"
       , "subset_file": null
       , "use_shuffle": true
       , "n_workers": 8
