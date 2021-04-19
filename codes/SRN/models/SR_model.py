@@ -148,8 +148,8 @@ class SRModel(BaseModel):
         out_dict['SR'] = self.fake_H.detach()[0].float().cpu()
         if need_HR:
             out_dict['HR'] = self.real_H.detach()[0].float().cpu()
-            if self.val_lpips:
-                out_dict['LPIPS'] = self.LPIPS.detach().float().cpu()
+        if self.val_lpips:
+            out_dict['LPIPS'] = self.LPIPS.detach().float().cpu()
         return out_dict
 
     def print_network(self):
