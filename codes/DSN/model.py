@@ -79,6 +79,7 @@ class Discriminator(nn.Module):
                 n_input_channel = 9 if self.cs == 'cat' else 3
             else:
                 raise NotImplementedError('Frequency Separation type [{:s}] not recognized'.format(filter_type))
+            print('# FS type: {}, kernel size={}'.format(filter_type.lower(), kernel_size))
         else:
             self.filter = None
 

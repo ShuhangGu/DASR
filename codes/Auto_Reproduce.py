@@ -35,7 +35,7 @@ def main():
                         help='set artifact in  (tdsr, tdrealsr, tddiv2k)')
     opt = parser.parse_args()
 
-    # os.system('cd ./DSN; sh auto_reproduce_launcher_{}.sh'.format(opt.dataset))
+    os.system('cd ./DSN; sh auto_reproduce_launcher_{}.sh'.format(opt.dataset))
     create_auto_json(opt.dataset, opt.artifact)
     os.system('cd ./SRN; python train.py -opt options/train/train_DASR_auto_reproduce_{}.json'.format(opt.dataset))
 
