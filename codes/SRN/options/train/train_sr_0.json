@@ -1,5 +1,5 @@
 {
-  "name": "debug_0416_DSN_gau_k5_Batch" //  please remove "debug_" during training
+  "name": "0416_DSN_avgpool_k5_Batch" //  please remove "debug_" during training
   , "use_tb_logger": true
   , "model":"sr"
   , "scale": 4
