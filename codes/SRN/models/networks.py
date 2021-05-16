@@ -124,6 +124,10 @@ def define_G(opt):
         netG = arch.De_Resnet(in_nc=opt_net['in_nc'], out_nc=opt_net['out_nc'], nf=opt_net['nf'], \
             nb=opt_net['nb'], downscale=opt_net['scale'], norm_type=opt_net['norm_type'], \
             act_type='relu', mode=opt_net['mode'])
+    elif which_model == 'RRDB_Residual_conv':  # RRDB
+        netG = arch.RRDBNet_Residual_conv(in_nc=opt_net['in_nc'], out_nc=opt_net['out_nc'], nf=opt_net['nf'],
+            nb=opt_net['nb'], gc=opt_net['gc'], upscale=opt_net['scale'], norm_type=opt_net['norm_type'],
+            act_type='leakyrelu', mode=opt_net['mode'], upsample_mode='upconv')
     else:
         raise NotImplementedError('Generator model [{:s}] not recognized'.format(which_model))
 
@@ -212,6 +216,24 @@ def define_pairD(opt):
     init_weights(netD, init_type='kaiming', scale=1)
     if gpu_ids:
         netD = nn.DataParallel(netD)
+    return netD
+
+def define_patchD(opt):
+    gpu_ids = opt['gpu_ids']
+    opt_net = opt['network_patchD']
+    which_model = opt_net['which_patchD']
+    norm_layer = opt_net['norm_layer']
+    FS_type = opt_net['FS_type']
+    kernel_size = opt_net['kernel_size']
+
+    if which_model == 'FSD':
+        net_patchD = arch.FS_Discriminator(kernel_size=kernel_size, D_arch='FSD',
+                                           filter_type=FS_type, norm_layer=norm_layer)
+    else:
+        raise NotImplementedError('Patch Discriminator model [{:s}] not recognized'.format(opt_net))
+    init_weights(net_patchD, init_type='kaiming', scale=1)
+    if gpu_ids:
+        netD = nn.DataParallel(net_patchD)
     return netD
 
 def define_F(opt, use_bn=False):

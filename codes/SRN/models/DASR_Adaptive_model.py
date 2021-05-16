@@ -20,14 +20,14 @@ import utils.util as util
 from PerceptualSimilarity.util import util as util_LPIPS
 
 
-class DASR_Model(BaseModel):
+class DASR_Adaptive_Model(BaseModel):
     def __init__(self, opt):
-        super(DASR_Model, self).__init__(opt)
+        super(DASR_Adaptive_Model, self).__init__(opt)
         train_opt = opt['train']
         self.chop = opt['chop']
         self.scale = opt['scale']
         self.val_lpips = opt['val_lpips']
-        self.adaptive_weights = opt['adaptive_weights']
+        self.use_domain_distance_map = opt['use_domain_distance_map']
 
         # GD gan loss
         self.ragan = train_opt['ragan']
@@ -37,6 +37,7 @@ class DASR_Model(BaseModel):
         # define networks and load pretrained models
 
         self.netG = networks.define_G(opt).to(self.device)  # G
+        self.net_patchD = networks.define_patchD(opt).to(self.device)
         if self.is_train:
             if self.l_gan_H_target_w > 0:
                 self.netD_target = networks.define_D(opt).to(self.device)  # D
@@ -161,15 +162,20 @@ class DASR_Model(BaseModel):
         if istrain and 'HR' in data:  # train or val
             HR_pair = data['HR'].to(self.device)
             HR_unpair = data['HR_unpair'].to(self.device)
-            fake_w = data['fake_w'].to(self.device)
+            # fake_w = data['fake_w'].to(self.device)
             real_LR = data['LR_real'].to(self.device)
             fake_LR = data['LR_fake'].to(self.device)
 
-            self.var_L = torch.cat([fake_LR, real_LR], dim=0)
-            self.var_H = torch.cat([HR_pair, HR_unpair], dim=0)
-            self.weights = fake_w
-            self.weights = F.interpolate(self.weights, size=(HR_pair.shape[2], HR_pair.shape[3]),
-                                         mode='bilinear', align_corners=False)
+            with torch.no_grad():
+                self.var_L = torch.cat([fake_LR, real_LR], dim=0)
+                self.var_H = torch.cat([HR_pair, HR_unpair], dim=0)
+                self.adaptive_weights = self.net_patchD(self.var_L)
+
+                # self.weights = adaptive_weights
+                if self.use_domain_distance_map:
+                    self.domain_distance_map = self.adaptive_weights[:fake_LR.shape[0], ...]
+                    self.domain_distance_map = F.interpolate(self.domain_distance_map, size=(HR_pair.shape[2], HR_pair.shape[3]),
+                                             mode='bilinear', align_corners=False)
 
             self.mask = []
             B = self.var_L.shape[0]
@@ -178,6 +184,8 @@ class DASR_Model(BaseModel):
 
         else:
             self.var_L = data['LR'].to(self.device)
+            with torch.no_grad():
+                self.adaptive_weights = self.net_patchD(self.var_L)
             if 'HR' in data:
                 self.var_H = data['HR'].to(self.device)
                 self.needHR = True
@@ -189,7 +197,7 @@ class DASR_Model(BaseModel):
 
     def optimize_parameters(self, step):
         # G
-        self.fake_H = self.netG(self.var_L)
+        self.fake_H = self.netG(self.var_L, self.adaptive_weights)
         self.fake_LL, self.fake_Hc = self.fs(self.fake_H, norm=self.norm)
         self.real_LL, self.real_Hc = self.fs(self.var_H, norm=self.norm)
 
@@ -208,9 +216,9 @@ class DASR_Model(BaseModel):
         if step % self.G_update_inter == 0:
             l_g_total = 0
             if self.cri_pix:  # pixel loss
-                if self.multiweights:
+                if self.use_domain_distance_map:
                     l_g_pix = self.l_pix_w * \
-                              torch.mean(self.weights * torch.abs(self.fake_SR_source - self.real_HR_source))
+                              torch.mean(self.domain_distance_map * torch.abs(self.fake_SR_source - self.real_HR_source))
                 else:
                     l_g_pix = self.cri_pix(self.fake_SR_source, self.real_HR_source)
                 l_g_total += self.l_pix_w * l_g_pix
@@ -334,7 +342,7 @@ class DASR_Model(BaseModel):
             if self.chop:
                 self.fake_H = forward_chop(self.var_L, self.scale, self.netG, min_size=320000)
             else:
-                self.fake_H = self.netG(self.var_L)
+                self.fake_H = self.netG(self.var_L, self.adaptive_weights)
             if not tsamples and self.val_lpips:
                 fake_H, real_H = util.tensor2img(self.fake_H), util.tensor2img(self.var_H)
                 fake_H, real_H = fake_H[:, :, [2, 1, 0]], real_H[:, :, [2, 1, 0]]
@@ -419,7 +427,6 @@ class DASR_Model(BaseModel):
             logger.info('Loading pretrained model for G [{:s}] ...'.format(load_path_G))
             self.load_network(load_path_G, self.netG)
 
-
         load_path_D_target = self.opt['path']['pretrain_model_D_target']
         if self.opt['is_train'] and load_path_D_target is not None:
             logger.info('Loading pretrained model for D_target [{:s}] ...'.format(load_path_D_target))
@@ -432,8 +439,13 @@ class DASR_Model(BaseModel):
 
         load_path_patch_Discriminator = self.opt['path']['Patch_Discriminator']
         if load_path_patch_Discriminator is not None:
+            checkpoint = torch.load(load_path_patch_Discriminator)
+            patch_D_state_dict = checkpoint['models_d_state_dict']
             logger.info('Loading pretrained model for Patch_Discriminator [{:s}] ...'.format(load_path_patch_Discriminator))
-            self.load_network(load_path_patch_Discriminator, self.netD_source)
+            if isinstance(self.net_patchD, nn.DataParallel):
+                self.net_patchD = self.net_patchD.module
+            self.net_patchD.load_state_dict(patch_D_state_dict)
+            # self.load_network(load_path_patch_Discriminator, self.net_patchD)
 
     def save(self, iter_step):
         self.save_network(self.netG, 'G', iter_step)

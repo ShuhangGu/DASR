@@ -34,6 +34,8 @@ def create_dataset(dataset_opt):
         from data.LRHR_wavelet_unpairEq_dataset import LRHR_wavelet_Equnpair_Dataset as D
     elif mode == 'LRHR_wavelet_unpair_fake_weights_EQ':
         from data.LRHR_wavelet_unpairEq_fake_w_dataset import LRHR_wavelet_Equnpair_Dataset as D
+    elif mode == 'LRHR_unpair':
+        from data.LRHR_unpair_dataset import LRHR_unpair_Dataset as D
     else:
         raise NotImplementedError('Dataset [{:s}] is not recognized.'.format(mode))
     dataset = D(dataset_opt)

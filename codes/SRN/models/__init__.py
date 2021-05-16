@@ -15,8 +15,10 @@ def create_model(opt):
         from .Degradation_Resnet import  DegrationModel as M
     elif model == 'De_patch_wavelet_GAN':
         from .DePatchGAN_wavelet_model import DePatch_wavelet_GANModel as M
-    elif model == 'DASR_FS_ESRGAN_patchGAN':
-        from .DASR_model import DASR_FS_ESRGAN_patchGAN_Mix as M
+    elif model == 'DASR':
+        from .DASR_model import DASR_Model as M
+    elif model == 'DASR_Adaptive_Model':
+        from .DASR_Adaptive_model import DASR_Adaptive_Model as M
     else:
         raise NotImplementedError('Model [{:s}] not recognized.'.format(model))
     m = M(opt)

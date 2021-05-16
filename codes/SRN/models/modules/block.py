@@ -459,7 +459,7 @@ class RRDB_ada(nn.Module):
         out = self.RDB3(out)
         return out.mul(x[1] * self.lda) + x[0], x[1]
 
-class RRDB_resconv(nn.Module):
+class RRDB_Residual_conv(nn.Module):
     '''
     Residual in Residual Dense Block
     (ESRGAN: Enhanced Super-Resolution Generative Adversarial Networks)
@@ -467,7 +467,7 @@ class RRDB_resconv(nn.Module):
 
     def __init__(self, nc, kernel_size=3, gc=32, stride=1, bias=True, pad_type='zero', \
             norm_type=None, act_type='leakyrelu', mode='CNA', n_resconv=2):
-        super(RRDB_resconv, self).__init__()
+        super(RRDB_Residual_conv, self).__init__()
         self.RDB1 = ResidualDenseBlock_5C(nc, kernel_size, gc, stride, bias, pad_type, \
             norm_type, act_type, mode)
         self.RDB2 = ResidualDenseBlock_5C(nc, kernel_size, gc, stride, bias, pad_type, \
@@ -485,6 +485,7 @@ class RRDB_resconv(nn.Module):
         out = self.RDB2(out)
         out = self.RDB3(out)
         return out.mul(x[1] * self.lda) + self.res_conv(x[0]), x[1]
+
 
 
 class Affine_Module(nn.Module):
