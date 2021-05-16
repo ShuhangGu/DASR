@@ -361,6 +361,9 @@ for epoch in range(start_epoch, opt.num_epochs + 1):
         state_dict = {
             'epoch': epoch,
             'iteration': iteration,
+            'fs_type': opt.filter,
+            'fs_kernel_size': opt.kernel_size,
+            'D_type': opt.discriminator,
             'model_g_state_dict': model_g.state_dict(),
             'models_d_state_dict': model_d.state_dict(),
             'optimizer_g_state_dict': optimizer_g.state_dict(),

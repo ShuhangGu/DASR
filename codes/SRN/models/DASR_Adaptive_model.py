@@ -328,12 +328,12 @@ class DASR_Adaptive_Model(BaseModel):
         if step % self.D_update_inter == 0:
             if self.l_gan_H_target_w > 0:
                 self.log_dict['loss/l_d_target_total'] = l_d_target_total.item()
-                self.log_dict['disc_Score/D_real_target_H'] = torch.mean(pred_d_target_real.detach()).item()
-                self.log_dict['disc_Score/D_fake_target_H'] = torch.mean(pred_d_target_fake.detach()).item()
+                self.log_dict['disc_Score/D_real_target_H'] = 1 / (1 + torch.exp(-torch.mean(pred_d_target_real.detach())).item())
+                self.log_dict['disc_Score/D_fake_target_H'] = 1 / (1 + torch.exp(-torch.mean(pred_d_target_fake.detach())).item())
             if self.l_gan_H_source_w > 0:
                 self.log_dict['loss/l_d_total'] = l_d_source_total.item()
-                self.log_dict['disc_Score/D_real_source_H'] = torch.mean(pred_d_source_real.detach()).item()
-                self.log_dict['disc_Score/D_fake_source_H'] = torch.mean(pred_d_source_fake.detach()).item()
+                self.log_dict['disc_Score/D_real_source_H'] = 1 / (1 + torch.exp(-torch.mean(pred_d_source_real.detach())).item())
+                self.log_dict['disc_Score/D_fake_source_H'] = 1 / (1 + torch.exp(-torch.mean(pred_d_source_fake.detach())).item())
 
 
     def test(self, tsamples=False):
