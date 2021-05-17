@@ -127,9 +127,10 @@ def main():
                 HRs = os.listdir(opt['datasets']['train']['dataroot_HR'])
 
                 for i in range(5):
-                    fake_LR_path = os.path.join(opt['datasets']['train']['dataroot_fake_LR'], fake_LRs[i])
-                    real_LR_path = os.path.join(opt['datasets']['train']['dataroot_real_LR'], real_LRs[i])
-                    HR_path = os.path.join(opt['datasets']['train']['dataroot_HR'], HRs[i])
+                    random_index = np.random.choice(range(len(fake_LRs)))
+                    fake_LR_path = os.path.join(opt['datasets']['train']['dataroot_fake_LR'], fake_LRs[random_index])
+                    real_LR_path = os.path.join(opt['datasets']['train']['dataroot_real_LR'], real_LRs[random_index])
+                    HR_path = os.path.join(opt['datasets']['train']['dataroot_HR'], HRs[random_index])
                     fake_LR = np.array(Image.open(fake_LR_path))
                     real_LR = np.array(Image.open(real_LR_path))
                     HR = np.array(Image.open(HR_path))
