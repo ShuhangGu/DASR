@@ -124,6 +124,10 @@ def define_G(opt):
         netG = arch.De_Resnet(in_nc=opt_net['in_nc'], out_nc=opt_net['out_nc'], nf=opt_net['nf'], \
             nb=opt_net['nb'], downscale=opt_net['scale'], norm_type=opt_net['norm_type'], \
             act_type='relu', mode=opt_net['mode'])
+    elif which_model == 'RRDB_SEAN':
+        netG = arch.RRDBNet_SEAN(in_nc=opt_net['in_nc'], out_nc=opt_net['out_nc'], nf=opt_net['nf'],
+            nb=opt_net['nb'], gc=opt_net['gc'], upscale=opt_net['scale'], norm_type=opt_net['norm_type'],
+            act_type='leakyrelu', mode=opt_net['mode'], upsample_mode='upconv', nb_ada=opt_net['ada_nb'])
     elif which_model == 'RRDB_Residual_conv':  # RRDB
         netG = arch.RRDBNet_Residual_conv(in_nc=opt_net['in_nc'], out_nc=opt_net['out_nc'], nf=opt_net['nf'],
             nb=opt_net['nb'], gc=opt_net['gc'], upscale=opt_net['scale'], norm_type=opt_net['norm_type'],

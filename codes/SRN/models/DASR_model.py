@@ -28,6 +28,7 @@ class DASR_Model(BaseModel):
         self.scale = opt['scale']
         self.val_lpips = opt['val_lpips']
         self.adaptive_weights = opt['adaptive_weights']
+        self.multiweights = opt['multiweights']
 
         # GD gan loss
         self.ragan = train_opt['ragan']
@@ -54,6 +55,7 @@ class DASR_Model(BaseModel):
             # Wavelet
             self.DWT2 = DWTForward(J=1, mode='reflect', wave='haar').to(self.device)
             self.fs = self.wavelet_s
+            self.filter_high = FilterHigh(kernel_size=train_opt['fs_kernel_size'], gaussian=True).to(self.device)
         elif train_opt['fs'] == 'gau':
             # Gaussian
             self.filter_low, self.filter_high = FilterLow(kernel_size=train_opt['fs_kernel_size'], gaussian=True).to(self.device), \
@@ -429,11 +431,6 @@ class DASR_Model(BaseModel):
         if self.opt['is_train'] and load_path_D_source is not None:
             logger.info('Loading pretrained model for D_source [{:s}] ...'.format(load_path_D_source))
             self.load_network(load_path_D_source, self.netD_source)
-
-        load_path_patch_Discriminator = self.opt['path']['Patch_Discriminator']
-        if load_path_patch_Discriminator is not None:
-            logger.info('Loading pretrained model for Patch_Discriminator [{:s}] ...'.format(load_path_patch_Discriminator))
-            self.load_network(load_path_patch_Discriminator, self.netD_source)
 
     def save(self, iter_step):
         self.save_network(self.netG, 'G', iter_step)
