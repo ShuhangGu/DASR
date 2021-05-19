@@ -188,8 +188,6 @@ class DASR_Adaptive_Model(BaseModel):
 
         else:
             self.var_L = data['LR'].to(self.device)
-            with torch.no_grad():
-                self.adaptive_weights = self.net_patchD(self.var_L)
             if 'HR' in data:
                 self.var_H = data['HR'].to(self.device)
                 self.needHR = True
@@ -362,6 +360,7 @@ class DASR_Adaptive_Model(BaseModel):
     def test(self, tsamples=False):
         self.netG.eval()
         with torch.no_grad():
+            self.adaptive_weights = self.net_patchD(self.var_L)
             if self.chop:
                 self.fake_H = forward_chop(self.var_L, self.scale, self.netG, min_size=320000)
             else:
@@ -392,6 +391,8 @@ class DASR_Adaptive_Model(BaseModel):
             out_dict['LPIPS'] = self.LPIPS.detach().float().cpu()
         if not tsamples and self.needHR:
             out_dict['HR'] = self.var_H.detach()[0].float().cpu()
+        if self.use_domain_distance_map:
+            out_dict['adaptive_weights'] = torch.mean(self.adaptive_weights.float().cpu())
         return out_dict
 
     def print_network(self):

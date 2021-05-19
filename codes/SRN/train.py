@@ -189,13 +189,19 @@ def main():
                     sr_img = util.tensor2img(visuals['SR'])  # uint8
                     if 'HR' in opt['datasets']['val']['mode']:
                         gt_img = util.tensor2img(visuals['HR'])  # uint8
+                    log_info = '{}'.format(val_data['HR_path'][0].split('/')[-1])
+
                     if opt['val_lpips']:
                         lpips = visuals['LPIPS']
                         avg_lpips += lpips
-                        logger.info('{} LPIPS: {:.3f}'.format(val_data['HR_path'][0].split('/')[-1], lpips.numpy()))
+                        log_info += '{:.3f}'.format(lpips.numpy())
+                    if opt['use_domain_distance_map']:
+                        ada_w = visuals['adaptive_weights']
+                        log_info += '{:.2f}'.format(ada_w.numpy())
+                        # logger.info('{} LPIPS: {:.3f}'.format(val_data['HR_path'][0].split('/')[-1], lpips.numpy()))
                         # print('img:', val_data['HR_path'][0].split('/')[-1], 'LPIPS: %.3f' % lpips.numpy())
-                    else:
-                        print('img:', val_data['LR_path'][0].split('/')[-1])
+                    # else:
+                    #     print('img:', val_data['LR_path'][0].split('/')[-1])
                     # Save SR images for reference
                     save_img_path = os.path.join(img_dir, '{:s}_{:d}.png'.format(\
                         img_name, current_step))
