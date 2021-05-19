@@ -10,7 +10,7 @@ from torch.optim import lr_scheduler
 from utils.util import forward_chop
 import models.networks as networks
 from .base_model import BaseModel
-from models.modules.loss import GANLoss, GradientPenaltyLoss, PerceptualLoss
+from models.modules.loss import GANLoss, GradientPenaltyLoss, PerceptualLoss, discriminator_loss
 logger = logging.getLogger('base')
 from pytorch_wavelets import DWTForward, DWTInverse
 from utils.util import b_split, b_merge
@@ -28,12 +28,17 @@ class DASR_Adaptive_Model(BaseModel):
         self.scale = opt['scale']
         self.val_lpips = opt['val_lpips']
         self.use_domain_distance_map = opt['use_domain_distance_map']
+        self.use_patchD_opt = opt['network_patchD']['use_patchD_opt']
 
         # GD gan loss
         self.ragan = train_opt['ragan']
         self.cri_gan = GANLoss(train_opt['gan_type'], 1.0, 0.0).to(self.device)
         self.l_gan_H_target_w = train_opt['gan_H_target']
         self.l_gan_H_source_w = train_opt['gan_H_source']
+
+        # patchD gan loss
+        self.cri_patchD_gan = discriminator_loss
+
         # define networks and load pretrained models
 
         self.netG = networks.define_G(opt).to(self.device)  # G
@@ -117,6 +122,12 @@ class DASR_Adaptive_Model(BaseModel):
                 self.l_gp_w = train_opt['gp_weigth']
 
             # optimizers
+            # Patch Discriminator
+            if self.use_patchD_opt:
+                self.optimizer_patchD = torch.optim.Adam(self.net_patchD.parameters(),
+                                                    lr=opt['network_patchD']['lr'],
+                                                    betas=[opt['network_patchD']['beta1_G'], 0.999])
+                self.optimizers.append(self.optimizer_patchD)
             # G
             wd_G = train_opt['weight_decay_G'] if train_opt['weight_decay_G'] else 0
             optim_params = []
@@ -169,13 +180,6 @@ class DASR_Adaptive_Model(BaseModel):
             with torch.no_grad():
                 self.var_L = torch.cat([fake_LR, real_LR], dim=0)
                 self.var_H = torch.cat([HR_pair, HR_unpair], dim=0)
-                self.adaptive_weights = self.net_patchD(self.var_L)
-
-                # self.weights = adaptive_weights
-                if self.use_domain_distance_map:
-                    self.domain_distance_map = self.adaptive_weights[:fake_LR.shape[0], ...]
-                    self.domain_distance_map = F.interpolate(self.domain_distance_map, size=(HR_pair.shape[2], HR_pair.shape[3]),
-                                             mode='bilinear', align_corners=False)
 
             self.mask = []
             B = self.var_L.shape[0]
@@ -196,6 +200,23 @@ class DASR_Adaptive_Model(BaseModel):
 
 
     def optimize_parameters(self, step):
+        self.adaptive_weights = self.net_patchD(self.var_L)
+        B = self.var_L.shape[0]
+
+        # self.weights = adaptive_weights
+        if self.use_domain_distance_map:
+            self.domain_distance_map = self.adaptive_weights[:B//2, ...]
+            self.domain_distance_map = F.interpolate(self.domain_distance_map,
+                                                     size=(self.var_H.shape[2], self.var_H.shape[3]),
+                                                     mode='bilinear', align_corners=False)
+        if self.use_patchD_opt:
+            fake_weights, real_weights = self.adaptive_weights[:B//2], self.adaptive_weights[B//2:]
+            patch_D_gan_loss = self.cri_patchD_gan(real_weights, fake_weights)
+            self.optimizer_patchD.zero_grad()
+            patch_D_gan_loss.backward()
+            self.optimizer_patchD.step()
+
+
         # G
         self.fake_H = self.netG(self.var_L, self.adaptive_weights)
         self.fake_LL, self.fake_Hc = self.fs(self.fake_H, norm=self.norm)
@@ -334,7 +355,9 @@ class DASR_Adaptive_Model(BaseModel):
                 self.log_dict['loss/l_d_total'] = l_d_source_total.item()
                 self.log_dict['disc_Score/D_real_source_H'] = 1 / (1 + torch.exp(-torch.mean(pred_d_source_real.detach())).item())
                 self.log_dict['disc_Score/D_fake_source_H'] = 1 / (1 + torch.exp(-torch.mean(pred_d_source_fake.detach())).item())
-
+            if self.use_patchD_opt:
+                self.log_dict['patchD_Score/real_weights'] = 1 / (1 + torch.exp(-torch.mean(real_weights.detach())).item())
+                self.log_dict['patchD_Score/fake_weights'] = 1 / (1 + torch.exp(-torch.mean(fake_weights.detach())).item())
 
     def test(self, tsamples=False):
         self.netG.eval()
