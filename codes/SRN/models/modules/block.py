@@ -466,7 +466,7 @@ class RRDB_Residual_conv(nn.Module):
     '''
 
     def __init__(self, nc, kernel_size=3, gc=32, stride=1, bias=True, pad_type='zero', \
-            norm_type=None, act_type='leakyrelu', mode='CNA', n_resconv=2):
+            norm_type=None, act_type='leakyrelu', mode='CNA', n_resconv=2, resconv_scale=[0.1, 1]):
         super(RRDB_Residual_conv, self).__init__()
         self.RDB1 = ResidualDenseBlock_5C(nc, kernel_size, gc, stride, bias, pad_type, \
             norm_type, act_type, mode)
@@ -474,7 +474,8 @@ class RRDB_Residual_conv(nn.Module):
             norm_type, act_type, mode)
         self.RDB3 = ResidualDenseBlock_5C(nc, kernel_size, gc, stride, bias, pad_type, \
             norm_type, act_type, mode)
-        self.lda = nn.Parameter(torch.Tensor([0.4]), requires_grad=True)
+        self.resconv_scale = resconv_scale
+        # self.lda = nn.Parameter(torch.Tensor([0.1]), requires_grad=False)
         self.res_conv = sequential(*[conv_block(nc, nc, kernel_size=3, stride=1, bias=True, pad_type='zero',
             norm_type=norm_type, act_type=act_type, mode='CNA') for _ in range(n_resconv)])
 
@@ -484,7 +485,7 @@ class RRDB_Residual_conv(nn.Module):
         out = self.RDB1(x[0])
         out = self.RDB2(out)
         out = self.RDB3(out)
-        return out.mul(x[1] * self.lda) + self.res_conv(x[0]), x[1]
+        return out.mul(x[1] * self.resconv_scale[1]) + self.res_conv(x[0]) * self.resconv_scale[0], x[1]
 
 
 
