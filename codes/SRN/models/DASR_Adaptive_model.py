@@ -213,7 +213,7 @@ class DASR_Adaptive_Model(BaseModel):
             fake_weights, real_weights = self.adaptive_weights[:B//2], self.adaptive_weights[B//2:]
             patch_D_gan_loss = self.cri_patchD_gan(real_weights, fake_weights)
             self.optimizer_patchD.zero_grad()
-            patch_D_gan_loss.backward()
+            patch_D_gan_loss.backward(retain_graph=True)
             self.optimizer_patchD.step()
 
 
