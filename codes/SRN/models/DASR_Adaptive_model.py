@@ -60,6 +60,7 @@ class DASR_Adaptive_Model(BaseModel):
             # Wavelet
             self.DWT2 = DWTForward(J=1, mode='reflect', wave='haar').to(self.device)
             self.fs = self.wavelet_s
+            self.filter_high = FilterHigh(kernel_size=train_opt['fs_kernel_size'], gaussian=True).to(self.device)
         elif train_opt['fs'] == 'gau':
             # Gaussian
             self.filter_low, self.filter_high = FilterLow(kernel_size=train_opt['fs_kernel_size'], gaussian=True).to(self.device), \
