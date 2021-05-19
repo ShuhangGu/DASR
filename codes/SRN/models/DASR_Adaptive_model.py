@@ -122,12 +122,7 @@ class DASR_Adaptive_Model(BaseModel):
                 self.l_gp_w = train_opt['gp_weigth']
 
             # optimizers
-            # Patch Discriminator
-            if self.use_patchD_opt:
-                self.optimizer_patchD = torch.optim.Adam(self.net_patchD.parameters(),
-                                                    lr=opt['network_patchD']['lr'],
-                                                    betas=[opt['network_patchD']['beta1_G'], 0.999])
-                self.optimizers.append(self.optimizer_patchD)
+
             # G
             wd_G = train_opt['weight_decay_G'] if train_opt['weight_decay_G'] else 0
             optim_params = []
@@ -152,6 +147,12 @@ class DASR_Adaptive_Model(BaseModel):
                     weight_decay=wd_D, betas=(train_opt['beta1_D'], 0.999))
                 self.optimizers.append(self.optimizer_D_source)
 
+            # Patch Discriminator
+            if self.use_patchD_opt:
+                self.optimizer_patchD = torch.optim.Adam(self.net_patchD.parameters(),
+                                                         lr=opt['network_patchD']['lr'],
+                                                         betas=[opt['network_patchD']['beta1_G'], 0.999])
+                self.optimizers.append(self.optimizer_patchD)
             # schedulers
             if train_opt['lr_scheme'] == 'MultiStepLR':
                 for optimizer in self.optimizers:
