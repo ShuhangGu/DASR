@@ -194,10 +194,10 @@ def main():
                     if opt['val_lpips']:
                         lpips = visuals['LPIPS']
                         avg_lpips += lpips
-                        log_info += '{:.3f}'.format(lpips.numpy())
+                        log_info += '         {:.3f}'.format(lpips.numpy())
                     if opt['use_domain_distance_map']:
                         ada_w = visuals['adaptive_weights']
-                        log_info += '{:.2f}'.format(ada_w.numpy())
+                        log_info += '         {:.2f}'.format(ada_w.numpy())
                         # logger.info('{} LPIPS: {:.3f}'.format(val_data['HR_path'][0].split('/')[-1], lpips.numpy()))
                         # print('img:', val_data['HR_path'][0].split('/')[-1], 'LPIPS: %.3f' % lpips.numpy())
                     # else:
