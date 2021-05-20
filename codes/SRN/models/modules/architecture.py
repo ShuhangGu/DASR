@@ -243,9 +243,9 @@ class RRDBNet_Residual_conv(nn.Module):
 
     def forward(self, x, adaptive_weights):
         x_fea = self.fea_conv(x)
-        x = self.rb_blocks(x_fea)
-        x = self.rb_blocks_ada([x, adaptive_weights])
-        x = self.LR_conv(x[0])
+        x = self.rb_blocks_ada([x_fea, adaptive_weights])
+        x = self.rb_blocks(x[0])
+        x = self.LR_conv(x)
         x += x_fea
         x = self.up_conv(x)
         return x
