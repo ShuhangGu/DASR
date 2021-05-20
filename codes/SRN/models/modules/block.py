@@ -487,6 +487,46 @@ class RRDB_Residual_conv(nn.Module):
         out = self.RDB3(out)
         return out.mul(x[1] * self.resconv_scale[1]) + self.res_conv(x[0]) * self.resconv_scale[0], x[1]
 
+class RRDB_Residual_conv_concat(nn.Module):
+    '''
+    Residual in Residual Dense Block
+    (ESRGAN: Enhanced Super-Resolution Generative Adversarial Networks)
+    '''
+
+    def __init__(self, nc, kernel_size=3, gc=32, stride=1, bias=True, pad_type='zero', \
+            norm_type=None, act_type='leakyrelu', mode='CNA', n_resconv=2, n_ada_conv=2, adaptive_scale=[0.2, 1]):
+        super(RRDB_Residual_conv_concat, self).__init__()
+        self.RDB1 = ResidualDenseBlock_5C(nc, kernel_size, gc, stride, bias, pad_type, \
+            norm_type, act_type, mode)
+        self.RDB2 = ResidualDenseBlock_5C(nc, kernel_size, gc, stride, bias, pad_type, \
+            norm_type, act_type, mode)
+        self.RDB3 = ResidualDenseBlock_5C(nc, kernel_size, gc, stride, bias, pad_type, \
+            norm_type, act_type, mode)
+        self.adaptive_scale = adaptive_scale
+        adaptive_conv_list = [conv_block(nc, nc, kernel_size=3, stride=1, bias=True, pad_type='zero',
+            norm_type=norm_type, act_type=act_type, mode='CNA') for _ in range(n_ada_conv-1)]
+        adaptive_conv_list = [conv_block(nc+1, nc, kernel_size=3, stride=1, bias=True, pad_type='zero',
+            norm_type=norm_type, act_type=act_type, mode='CNA')] + adaptive_conv_list
+        self.adaptive_conv = sequential(*adaptive_conv_list)
+        # self.lda = nn.Parameter(torch.Tensor([0.1]), requires_grad=False)
+
+        resconv_list = [conv_block(nc, nc, kernel_size=3, stride=1, bias=True, pad_type='zero',
+            norm_type=norm_type, act_type=act_type, mode='CNA') for _ in range(n_resconv-1)]
+        resconv_list = [conv_block(nc+1, nc, kernel_size=3, stride=1, bias=True, pad_type='zero',
+            norm_type=norm_type, act_type=act_type, mode='CNA')] + resconv_list
+
+        self.res_conv = sequential(*resconv_list)
+        # self.cprs_channel_conv = conv_block(nc+1, nc, kernel_size, stride, bias=bias, pad_type=pad_type, \
+        #     norm_type=norm_type, act_type=act_type, mode=mode)
+
+    def forward(self, x):
+        input, ada_wegiths = x[0], x[1]
+        out = self.RDB1(self.adaptive_conv(torch.cat((input, ada_wegiths * self.adaptive_scale[0]), dim=1)))
+        out = self.RDB2(self.adaptive_conv(torch.cat((out, ada_wegiths * self.adaptive_scale[0]), dim=1)))
+        out = self.RDB3(self.adaptive_conv(torch.cat((out, ada_wegiths * self.adaptive_scale[0]), dim=1)))
+        residual = self.res_conv(torch.cat((input, ada_wegiths * self.adaptive_scale[1]), dim=1))
+        return out.mul(0.2) + residual, ada_wegiths
+
 
 
 class Affine_Module(nn.Module):

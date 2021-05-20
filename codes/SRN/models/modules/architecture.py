@@ -250,6 +250,54 @@ class RRDBNet_Residual_conv(nn.Module):
         x = self.up_conv(x)
         return x
 
+
+class RRDBNet_Residual_conv_concat(nn.Module):
+    def __init__(self, in_nc, out_nc, nf, nb, gc=32, upscale=4, norm_type=None, \
+            act_type='leakyrelu', mode='CNA', upsample_mode='upconv', nb_ada=1):
+        super(RRDBNet_Residual_conv_concat, self).__init__()
+        n_upscale = int(math.log(upscale, 2))
+        if upscale == 3:
+            n_upscale = 1
+
+        fea_conv = B.conv_block(in_nc, nf, kernel_size=3, norm_type=None, act_type=None)
+        rb_blocks = [B.RRDB(nf, kernel_size=3, gc=32, stride=1, bias=True, pad_type='zero',
+            norm_type=norm_type, act_type=act_type, mode='CNA') for _ in range(nb)]
+        rb_blocks_adaptive = [B.RRDB_Residual_conv_concat(nf, kernel_size=3, gc=32, stride=1, bias=True, pad_type='zero',
+                                    norm_type=norm_type, act_type=act_type, mode='CNA') for _ in range(nb_ada)]
+        LR_conv = B.conv_block(nf, nf, kernel_size=3, norm_type=norm_type, act_type=None, mode=mode)
+
+        if upsample_mode == 'upconv':
+            upsample_block = B.upconv_blcok
+        elif upsample_mode == 'pixelshuffle':
+            upsample_block = B.pixelshuffle_block
+        else:
+            raise NotImplementedError('upsample mode [{:s}] is not found'.format(upsample_mode))
+        if upscale == 3:
+            upsampler = upsample_block(nf, nf, 3, act_type=act_type)
+        else:
+            upsampler = [upsample_block(nf, nf, act_type=act_type) for _ in range(n_upscale)]
+        HR_conv0 = B.conv_block(nf, nf, kernel_size=3, norm_type=None, act_type=act_type)
+        HR_conv1 = B.conv_block(nf, out_nc, kernel_size=3, norm_type=None, act_type=None)
+
+        self.fea_conv = fea_conv
+        self.rb_blocks = B.sequential(*rb_blocks)
+        self.rb_blocks_ada = B.sequential(*rb_blocks_adaptive)
+        self.LR_conv = LR_conv
+        self.up_conv = B.sequential(*upsampler, HR_conv0, HR_conv1)
+        # self.model = B.sequential(fea_conv, B.ShortcutBlock(B.sequential(*rb_blocks, LR_conv)),\
+        #     *upsampler, HR_conv0, HR_conv1)
+
+    def forward(self, x, adaptive_weights):
+        x_fea = self.fea_conv(x)
+        x = self.rb_blocks_ada([x_fea, adaptive_weights])
+        x = self.rb_blocks(x[0])
+        x = self.LR_conv(x)
+        x += x_fea
+        x = self.up_conv(x)
+        return x
+
+
+
 class ResnetGenerator(nn.Module):
     def __init__(self, input_nc, output_nc, ngf=64, norm_layer=nn.BatchNorm2d, use_dropout=False, n_blocks=6, padding_type='reflect'):
         assert(n_blocks >= 0)
