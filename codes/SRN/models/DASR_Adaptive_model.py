@@ -28,16 +28,17 @@ class DASR_Adaptive_Model(BaseModel):
         self.scale = opt['scale']
         self.val_lpips = opt['val_lpips']
         self.use_domain_distance_map = opt['use_domain_distance_map']
-        self.use_patchD_opt = opt['network_patchD']['use_patchD_opt']
+        if self.is_train:
+            self.use_patchD_opt = opt['network_patchD']['use_patchD_opt']
 
-        # GD gan loss
-        self.ragan = train_opt['ragan']
-        self.cri_gan = GANLoss(train_opt['gan_type'], 1.0, 0.0).to(self.device)
-        self.l_gan_H_target_w = train_opt['gan_H_target']
-        self.l_gan_H_source_w = train_opt['gan_H_source']
+            # GD gan loss
+            self.ragan = train_opt['ragan']
+            self.cri_gan = GANLoss(train_opt['gan_type'], 1.0, 0.0).to(self.device)
+            self.l_gan_H_target_w = train_opt['gan_H_target']
+            self.l_gan_H_source_w = train_opt['gan_H_source']
 
-        # patchD gan loss
-        self.cri_patchD_gan = discriminator_loss
+            # patchD gan loss
+            self.cri_patchD_gan = discriminator_loss
 
         # define networks and load pretrained models
 
@@ -54,25 +55,26 @@ class DASR_Adaptive_Model(BaseModel):
 
         self.load()  # load G and D if needed
 
+
         # Frequency Separation
-        self.norm = train_opt['norm']
-        if train_opt['fs'] == 'wavelet':
+        self.norm = opt['FS_norm']
+        if opt['FS']['fs'] == 'wavelet':
             # Wavelet
             self.DWT2 = DWTForward(J=1, mode='reflect', wave='haar').to(self.device)
             self.fs = self.wavelet_s
-            self.filter_high = FilterHigh(kernel_size=train_opt['fs_kernel_size'], gaussian=True).to(self.device)
-        elif train_opt['fs'] == 'gau':
+            self.filter_high = FilterHigh(kernel_size=opt['FS']['fs_kernel_size'], gaussian=True).to(self.device)
+        elif opt['FS']['fs'] == 'gau':
             # Gaussian
-            self.filter_low, self.filter_high = FilterLow(kernel_size=train_opt['fs_kernel_size'], gaussian=True).to(self.device), \
-                                            FilterHigh(kernel_size=train_opt['fs_kernel_size'], gaussian=True).to(self.device)
+            self.filter_low, self.filter_high = FilterLow(kernel_size=opt['FS']['fs_kernel_size'], gaussian=True).to(self.device), \
+                                            FilterHigh(kernel_size=opt['FS']['fs_kernel_size'], gaussian=True).to(self.device)
             self.fs = self.filter_func
-        elif train_opt['fs'] == 'avgpool':
+        elif opt['FS']['fs'] == 'avgpool':
             # avgpool
-            self.filter_low, self.filter_high = FilterLow(kernel_size=train_opt['fs_kernel_size']).to(self.device), \
-                                            FilterHigh(kernel_size=train_opt['fs_kernel_size']).to(self.device)
+            self.filter_low, self.filter_high = FilterLow(kernel_size=opt['FS']['fs_kernel_size']).to(self.device), \
+                                            FilterHigh(kernel_size=opt['FS']['fs_kernel_size']).to(self.device)
             self.fs = self.filter_func
         else:
-            raise NotImplementedError('FS type [{:s}] not recognized.'.format(train_opt['fs']))
+            raise NotImplementedError('FS type [{:s}] not recognized.'.format(opt['FS']['fs']))
 
         # define losses, optimizer and scheduler
         if self.is_train:

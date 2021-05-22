@@ -1,0 +1,80 @@
+{
+"name": "0603_AIM_4x"
+  , "suffix": null
+  , "model": "DASR_Adaptive_Model"
+  , "scale": 4
+  , "gpu_ids": [0]
+  , "chop": false
+  , "val_lpips": true
+  , "is_test": true
+  ,"datasets": {
+    "test_1": { // the 1st test dataset
+      "name": "AIM_DASR"
+      , "mode": "LRHR"
+      , "dataroot_HR": "/media/4T/Dizzy/AIM/AIM_datasets/DIV2K_val100/DIV2K_valid_HR"
+      , "dataroot_LR": "/media/4T/Dizzy/AIM/AIM_datasets/ValidationSource"
+    }
+
+//    "test_2": { // the 2nd test dataset
+//      "name": "gopro"
+//      , "mode": "LR"
+//      , "dataroot_HR": null
+//      , "dataroot_LR": "/media/4T/Dizzy/AIM/0316_test_imgs/test_imgs"
+//    }
+// ,"test_3": { // the 2nd test dataset
+//    "name": "Device_4xd_JPEG"
+//    , "mode": "LRHR"
+//    , "dataroot_HR": "/media/4T/Dizzy/SR_classical_DataSet/RealWorldDataSet/Device_degration_Data/City100_iPhoneX/HR_val"
+//    , "dataroot_LR": "/media/4T/Dizzy/SR_classical_DataSet/RealWorldDataSet/JPEG_compression_degration/Device_JPEG/Val_20_4xd"
+//  }
+}
+
+  , "path": {
+    "root": "/media/4T/Dizzy/github/DASR"
+  , "pretrain_model_G": "/media/4T/Dizzy/github/DASR/premodel/SRN_catddm_50000_G.pth"
+  , "Patch_Discriminator": "/media/4T/Dizzy/github/DASR/DSN_results/0416_DSN_avgpool_k11/DSN_avgpool_k11_lastiter.tar"
+//  , "pretrain_model_D_wlt": null
+  }
+
+  , "network_G": {
+    "which_model_G": "RRDB_Residual_conv_concat" // RRDB_net | sr_resnet
+    , "norm_type": null
+    , "mode": "CNA"
+    , "nf": 64
+    , "nb": 19
+    , "in_nc": 3
+    , "out_nc": 3
+    , "gc": 32
+    , "group": 1
+    , "reduction": 16
+    , "nbht": 4
+    , "ada_nb": 4
+  }
+    , "network_D": {
+      "which_model_D": "discriminator_patch"
+    , "which_model_D_wlt": "discriminator_patch"
+    , "norm_type": "Instance"
+    , "act_type": "leakyrelu"
+    , "mode": "CNA"
+    , "nf": 64
+    , "in_nc": 9
+    , "n_layers": 2
+  }
+  , "network_patchD": {
+     "which_patchD": "FSD"
+  ,  "FS_type": "avg_pool"
+  ,  "norm_layer": "Batch"
+  ,  "kernel_size": 11
+  ,  "use_patchD_opt": false
+  ,  "lr": 1e-6
+  ,  "beta1_G": 0.5
+  ,  "beta1_D": 0.9
+
+  } ,
+  "FS": {
+    "norm": true
+   , "fs": "wavelet"
+   , "fs_kernel_size": 5
+   , "kernel_size": 5
+  }
+}
