@@ -362,6 +362,7 @@ class DASR_Adaptive_Model(BaseModel):
                 self.log_dict['patchD_Score/fake_weights'] = 1 / (1 + torch.exp(-torch.mean(fake_weights.detach())).item())
 
     def test(self, tsamples=False):
+        torch.cuda.empty_cache()
         self.netG.eval()
         with torch.no_grad():
             self.adaptive_weights = self.net_patchD(self.var_L)
