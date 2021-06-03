@@ -1,3 +1,4 @@
+import shutil
 import argparse
 import os
 import torch.utils.data
@@ -136,6 +137,10 @@ if opt.checkpoint is not None:
 else:
     print('Use --checkpoint to define the model parameters used')
     exit()
+
+if opt.checkpoint is not None:
+    shutil.copyfile(opt.checkpoint, os.path.join(tdsr_lr_dir, opt.name+'.tar'))
+    print('Copying {} to {}'.format(opt.checkpoint, os.path.join(tdsr_lr_dir, opt.name+'.tar')))
 
 # generate the noisy images
 smallest_size = 1000000000
