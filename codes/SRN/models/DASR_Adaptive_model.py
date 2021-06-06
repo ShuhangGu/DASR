@@ -167,6 +167,7 @@ class DASR_Adaptive_Model(BaseModel):
             self.log_dict = OrderedDict()
         # print network
         self.print_network()
+        self.fake_H = None
 
         # # Debug
         if self.val_lpips:
@@ -202,6 +203,8 @@ class DASR_Adaptive_Model(BaseModel):
 
 
     def optimize_parameters(self, step):
+        del self.fake_H
+        torch.cuda.empty_cache()
         self.adaptive_weights = self.net_patchD(self.var_L)
         B = self.var_L.shape[0]
 
@@ -220,7 +223,11 @@ class DASR_Adaptive_Model(BaseModel):
 
 
         # G
-        self.fake_H = self.netG(self.var_L, self.adaptive_weights)
+        if step % self.G_update_inter == 0:
+            self.fake_H = self.netG(self.var_L, self.adaptive_weights)
+        else:
+            with torch.no_grad():
+                self.fake_H = self.netG(self.var_L, self.adaptive_weights)
         self.fake_LL, self.fake_Hc = self.fs(self.fake_H, norm=self.norm)
         self.real_LL, self.real_Hc = self.fs(self.var_H, norm=self.norm)
 
