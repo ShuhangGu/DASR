@@ -290,6 +290,8 @@ class DASR_Adaptive_Model(BaseModel):
             self.optimizer_G.zero_grad()
             l_g_total.backward()
             self.optimizer_G.step()
+        else:
+            self.optimizer_G.zero_grad()
 
 
         # D
@@ -311,7 +313,10 @@ class DASR_Adaptive_Model(BaseModel):
                 self.optimizer_D_target.zero_grad()
                 l_d_target_total.backward()
                 self.optimizer_D_target.step()
+        else:
+            self.optimizer_D_target.zero_grad()
 
+        if step % self.D_update_inter == 0:
             # source domain
             if self.l_gan_H_source_w > 0:
                 pred_d_source_real = self.netD_source(self.real_HR_Hf_source.detach())
@@ -329,6 +334,8 @@ class DASR_Adaptive_Model(BaseModel):
                 self.optimizer_D_source.zero_grad()
                 l_d_source_total.backward()
                 self.optimizer_D_source.step()
+        else:
+            self.optimizer_D_source.zero_grad()
 
         # set log
         if step % self.G_update_inter == 0:
@@ -344,9 +351,6 @@ class DASR_Adaptive_Model(BaseModel):
             if self.l_gan_H_source_w > 0:
                 self.log_dict['loss/l_g_gan_source_H'] = l_g_gan_source_Hf.item()
 
-
-        # if self.opt['train']['gan_type'] == 'wgan-gp':
-        #     self.log_dict['l_d_gp'] = l_d_gp.item()
         # D outputs
         if step % self.D_update_inter == 0:
             if self.l_gan_H_target_w > 0:
