@@ -132,7 +132,7 @@ The training data for SRN can be generated with:
 ```
 python create_dataset_modified.py --dataset aim2019 \
                                   --checkpoint <path to your DSN model> \
-                                  --generator DeResnet --discriminator FSD  --filter avg_pool\
+                                  --generator DeResnet --discriminator FSD  --filter wavelet --cat_or_sum cat\
                                   --name 0603_DSN_LRs_aim2019
 ```
 Please note that our generator and discriminator are saved in a single
