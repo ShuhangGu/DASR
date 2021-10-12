@@ -158,10 +158,12 @@ Please specify the configurations in `train_DASR.json` file.
 
 ### Citation
 ```
-@article{wei2020unsupervised,
-  title={Unsupervised Real-world Image Super Resolution via Domain-distance Aware Training},
-  author={Wei, Yunxuan and Gu, Shuhang and Li, Yawei and Jin, Longcun},
-  journal={arXiv preprint arXiv:2004.01178},
-  year={2020}
+@InProceedings{Wei_2021_CVPR,
+    author    = {Wei, Yunxuan and Gu, Shuhang and Li, Yawei and Timofte, Radu and Jin, Longcun and Song, Hengjie},
+    title     = {Unsupervised Real-World Image Super Resolution via Domain-Distance Aware Training},
+    booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+    month     = {June},
+    year      = {2021},
+    pages     = {13385-13394}
 }
 ```
